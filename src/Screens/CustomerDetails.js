@@ -1,106 +1,3 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
-
-# Getting Started
-
-
-C:\Airyy_Management\android\app\build\outputs\apk\release\
-C:\Airyy_Management\android\app\build\outputs\apk\release\app-release.apk && npm start
-cd android &&  gradlew assembleRelease && cd..
-cd android && .\gradlew clean &&  gradlew assembleRelease && cd..
-cd android && .\gradlew clean &&  cd.. && npm start
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
-
-## Step 1: Start the Metro Server
-
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
-
-To start Metro, run the following command from the _root_ of your React Native project:
-
-```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
-
-```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### For iOS
-
-```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
-
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, {useState, useEffect} from 'react';
 import {
   View,
@@ -117,11 +14,15 @@ import {
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 import {useNavigation} from '@react-navigation/native';
+import opencamera from '../components/opencamera';
 import {DOMAIN} from '@env';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import RNFS from 'react-native-fs';
 import ImageCropPicker from 'react-native-image-crop-picker';
-import { launchCamera } from 'react-native-image-picker';
+import {launchCamera} from 'react-native-image-picker';
+import {useRoute} from '@react-navigation/core';
+import {useSelector} from 'react-redux';
+
 const Checkbox = ({label, value, onPress}) => {
   return (
     <TouchableOpacity style={styles.checkboxContainer} onPress={onPress}>
@@ -139,55 +40,88 @@ const Checkbox = ({label, value, onPress}) => {
 
 const CustomerDetails = () => {
   const [userName, setUserName] = useState('');
-  const [LastName, setLastName] = useState('');
-  const [bikeCondition, setBikeCondition] = useState('EV');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [car, setcar] = useState(false);
+  const [User, setUser] = useState([]);
+  const [EmergencyCOntact, setEmergencyCOntact] = useState([]);
+  const route = useRoute();
 
+  useEffect(() => {
+    if (route.params && route.params.car) {
+      setcar(route.params.car);
+      console.log("car",route.params.car)
+    } else {
+      console.log("car",car)
+      setcar(false);
+    }
+  }, [route.params, navigation]);
+
+  const [LastName, setLastName] = useState('');
+  const [bikeType, setBikeType] = useState('EV');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const phone = useSelector(state => state.counter.phone);
   const [EV, setEV] = useState(true);
-  const [Adharcardname, setAdharcardname] = useState(null);
-  const [Licensename, setLicensename] = useState(null);
-  const [Adharcard, setAdharcard] = useState(null);
-  const [License, setLicense] = useState(null);
+  const [Adharcard, setAdharcard] = useState('');
+  const [Adharcardname, setAdharcardname] = useState('');
+  const [Image, setImage] = useState(null);
+  const [Imagename, setImagename] = useState(null);
+  const [Licensename, setLicensename] = useState('');
+  const [License, setLicense] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isActive, setisActive] = useState(true);
- 
+
   const [OTP, setOTP] = useState(false);
   const [isDocument, setisDocument] = useState(false);
   const [isChanged, setisChanged] = useState(false);
 
   const [count, setcount] = useState('');
+  const [onn, setonn] = useState(false);
   const [userNameError, setuserNameError] = useState('');
   const [phoneNumberError, setPhoneNumberError] = useState('');
   const [adharCardError, setAdharCardError] = useState('');
   const [licenseError, setLicenseError] = useState('');
   const navigation = useNavigation();
 
-   const [isLoadingOtp, setIsLoadingOtp] = useState(false);
-   const [isOptReceived, setIsOptReceived] = useState(false);
+  const [isLoadingOtp, setIsLoadingOtp] = useState(false);
+  const [isOptReceived, setIsOptReceived] = useState(false);
 
-   const handleVerify = () => {
-     // Simulate sending OTP to user
-     setIsLoadingOtp(true);
-     setTimeout(() => {
-       setIsLoadingOtp(false);
-       setIsOptReceived(true);
-     }, 3000); // Simulating a delay of 3 seconds for receiving OTP
-   };
+  const handleVerify = () => {
+    // Simulate sending OTP to user
+    if (User) {
+      // Trim any leading or trailing whitespace from the name
+      const trimmedName = User.name.trim();
 
-   const handleConfirmOpt = () => {
-     // Handle confirming OTP received
-     setIsOptReceived(false); // Reset state for next verification
-   };
+      // Split the name into parts based on space
+      const nameParts = trimmedName.split(' ');
 
-  const options = {
-    mediaType: 'photo',
-    quality: 0.4,
-    storageOptions: {
-      skipBackup: true,
-    },
+      // Extract first name and last name, assuming there is at least one space
+      const fname = nameParts[0] || '';
+      const lname = nameParts[1] || '';
+
+      // Set the state with first name and last name
+      setUserName(fname);
+      setLastName(lname);
+      setAdharcard(User.Adhar_Card);
+      setAdharcardname(phoneNumber + '_Adhar_Card.jpg');
+      setLicense(User.license_id);
+      setLicensename(phoneNumber + '_License.jpg');
+    } else {
+      setisActive(false);
+    }
+
+    setIsLoadingOtp(true);
+    setTimeout(() => {
+      setIsLoadingOtp(false);
+      setIsOptReceived(true);
+    }, 3000); // Simulating a delay of 3 seconds for receiving OTP
   };
-  const handleBikeConditionChange = condition => {
-    setBikeCondition(condition);
+
+  const handleConfirmOpt = () => {
+    // Handle confirming OTP received
+    setIsOptReceived(false); // Reset state for next verification
+  };
+
+  const handleBikeTypeChange = condition => {
+    setBikeType(condition);
   };
   const fetchData = async () => {
     try {
@@ -195,11 +129,16 @@ const CustomerDetails = () => {
         `https://${DOMAIN}/Bike/usercount/${phoneNumber}/`,
       );
       const data = await response.json();
-      setcount(data.usercount);
-      console.log(data.usercount)
-      console.log(data.active)
+      setcount(data);
+      setonn(true);
 
-      setisActive(data.active);
+      const response2 = await fetch(
+        `https://${DOMAIN}/User/Profile/${phoneNumber}/`,
+      );
+      const data2 = await response2.json();
+
+      setUser(data2.data);
+      setEmergencyCOntact(data2.emergency);
 
       //  else {
       //   // otp logic
@@ -214,6 +153,7 @@ const CustomerDetails = () => {
 
   useEffect(() => {
     // Only fetch data if phoneNumber has at least 10 characters
+
     if (phoneNumber.length >= 10) {
       setIsLoading(true);
       fetchData();
@@ -294,13 +234,16 @@ const CustomerDetails = () => {
   data.append('EV', EV);
   data.append('fname', userName);
   data.append('lname', LastName);
+
   const handleSubmit = async () => {
     if (!validateFields()) {
+      setisActive(false)
       Alert.alert('Error', 'Fill All The Fields Again');
       // Fields are not valid, show error or perform necessary actions
       return;
     }
     setIsLoading(true);
+
     await fetch(`https://${DOMAIN}/Bike/assign_bike_to_user/${phoneNumber}/`, {
       method: 'PUT',
       body: data,
@@ -310,11 +253,45 @@ const CustomerDetails = () => {
         setTimeout(() => {
           if (responseJson.Error) {
             Alert.alert('Error', responseJson.Error);
-          } else {
+          } else if (User && User.Signature && !EmergencyCOntact) {
+            if (car){
+              navigation.navigate('EmergencyCar', {
+                phoneNumber: phoneNumber,
+                EV: EV,
+                userName: userName,
+              });
+            }
+            else{
+              navigation.navigate('Emergency', {
+                phoneNumber: phoneNumber,
+                EV: EV,
+                userName: userName,
+              });
+            }
+            
+          } 
+          else if(User && User.Signature && EmergencyCOntact){
+            if(car){
+              navigation.navigate('CarDetails', {
+                phoneNumber: phoneNumber,
+                EV: EV,
+                userName: userName,
+              });
+            }
+            else{
+              navigation.navigate('VehicleDetails', {
+                phoneNumber: phoneNumber,
+                EV: EV,
+                userName: userName,
+              });
+            }
+           
+          }else {
             navigation.navigate('AgreementPage', {
               phoneNumber: phoneNumber,
               EV: EV,
               userName: userName,
+              car:car
             });
           }
 
@@ -323,7 +300,7 @@ const CustomerDetails = () => {
       })
       .catch(error => {
         setTimeout(() => {
-          Alert.alert(`${error}`, `Try again!`);
+          Alert.alert(`${error}`, `Try again! `);
           setIsLoading(false);
         }, 500);
       });
@@ -356,13 +333,22 @@ const CustomerDetails = () => {
 
         if (jpgFiles.length === 0) {
           console.log('No .jpg files found to delete');
+          Alert.alert(`Error`, `Try Capture the Image`);
         }
       })
       .catch(error => {
         console.log('Error reading directory:', error);
       });
   };
-  const AdharcardPicker = async () => {
+
+  const options = {
+    mediaType: 'photo',
+    quality: 0.4,
+    storageOptions: {
+      skipBackup: true,
+    },
+  };
+  const AdharcardPicker = () => {
     try {
       launchCamera(options, response => {
         console.log('Response = ', response);
@@ -384,7 +370,7 @@ const CustomerDetails = () => {
 
   const LicensePicker = async () => {
     try {
-      launchCamera(options, response => {
+      await launchCamera(options, response => {
         console.log('Response = ', response);
         if (response.didCancel) {
           console.log('User cancelled image picker');
@@ -399,6 +385,29 @@ const CustomerDetails = () => {
       });
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleAdharCardCapture = async () => {
+    const result = await opencamera(phoneNumber, '_Adhar_Card.jpg');
+    if (result) {
+      // console.log(result.path,result.name)
+      setAdharcard(result.path);
+      setAdharcardname(result.name);
+    } else {
+      Alert.alert('Error', 'Failed to capture Adhar Card');
+    }
+  };
+
+  const handleLicenseCapture = async () => {
+    const result = await opencamera(phoneNumber, '_License.jpg');
+    if (result) {
+      // console.log(result.path,result.name)
+
+      setLicense(result.path);
+      setLicensename(result.name);
+    } else {
+      Alert.alert('Error', 'Failed to capture Adhar Card');
     }
   };
 
@@ -450,12 +459,109 @@ const CustomerDetails = () => {
                 </Text>
               ) : null}
               <View style={{marginLeft: 20, marginBottom: 10}}>
+                {phoneNumberError ? (
+                  <Text style={styles.errorText}>{phoneNumberError}</Text>
+                ) : null}
+              </View>
+              <View style={styles.inputContainer1}>
+                <FontAwesome
+                  name="phone"
+                  size={18}
+                  color="black"
+                  style={styles.icon}
+                />
+                <TextInput
+                  placeholder="Phone Number"
+                  placeholderTextColor="#000"
+                  value={phoneNumber}
+                  onChangeText={text => {
+                    if (text.length < 10) {
+                      setonn(false);
+                    }
+                    setPhoneNumber(text);
+                  }}
+                  style={styles.input}
+                  keyboardType="phone-pad"
+                />
+                {onn ? (
+                  <View>
+                    {isLoadingOtp ? (
+                      <ActivityIndicator
+                        style={{
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginLeft: 15,
+                          paddingHorizontal: 10,
+                          paddingVertical: 10,
+
+                          marginBottom: 10,
+                          fontWeight: '800',
+
+                          borderRadius: 5,
+                          borderWidth: 1,
+                          borderColor: 'gray',
+                        }}
+                        size="small"
+                        color="#000"
+                      />
+                    ) : isOptReceived ? (
+                      <TouchableOpacity
+                        style={{
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginLeft: 15,
+                          paddingHorizontal: 10,
+                          paddingVertical: 10,
+                          elevation: 2,
+                          marginBottom: 10,
+
+                          backgroundColor: '#22c55e',
+                          borderRadius: 5,
+                        }}
+                        onPress={handleConfirmOpt}>
+                        <Text
+                          style={{
+                            color: '#FFF',
+                            fontWeight: '500',
+                            letterSpacing: 1,
+                          }}>
+                          ✔
+                        </Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        style={{
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginLeft: 15,
+                          paddingHorizontal: 10,
+                          paddingVertical: 10,
+                          elevation: 2,
+                          marginBottom: 10,
+                          backgroundColor: '#fef08a',
+                          borderRadius: 5,
+                        }}
+                        onPress={handleVerify}>
+                        <Text
+                          style={{
+                            color: '#000',
+                            fontWeight: '500',
+                            letterSpacing: 1,
+                          }}>
+                          Verify
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                ) : null}
+              </View>
+              <View style={{marginLeft: 20, marginBottom: 10}}>
                 {userNameError ? (
                   <Text style={styles.errorText}>{userNameError}</Text>
                 ) : null}
               </View>
 
-              <View style={styles.inputContainer1}>
+              <View style={styles.inputContainer2}>
                 <FontAwesome
                   name="user"
                   size={18}
@@ -478,112 +584,22 @@ const CustomerDetails = () => {
                 />
               </View>
             </View>
-            <View style={{marginLeft: 20, marginBottom: 10}}>
-              {phoneNumberError ? (
-                <Text style={styles.errorText}>{phoneNumberError}</Text>
-              ) : null}
-            </View>
-            <View style={styles.inputContainer2}>
-              <FontAwesome
-                name="phone"
-                size={18}
-                color="black"
-                style={styles.icon}
-              />
-              <TextInput
-                placeholder="Phone Number"
-                placeholderTextColor="#000"
-                value={phoneNumber}
-                onChangeText={text => setPhoneNumber(text)}
-                style={styles.input}
-                keyboardType="phone-pad"
-              />
-              <View>
-                {isLoadingOtp ? (
-                  <ActivityIndicator
-                    style={{
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginLeft: 15,
-                      paddingHorizontal: 10,
-                      paddingVertical: 10,
-
-                      marginBottom: 10,
-                      fontWeight: '800',
-
-                      borderRadius: 5,
-                      borderWidth: 1,
-                      borderColor: 'gray',
-                    }}
-                    size="small"
-                    color="#000"
-                  />
-                ) : isOptReceived ? (
-                  <TouchableOpacity
-                    style={{
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginLeft: 15,
-                      paddingHorizontal: 10,
-                      paddingVertical: 10,
-                      elevation: 2,
-                      marginBottom: 10,
-
-                      backgroundColor: '#22c55e',
-                      borderRadius: 5,
-                    }}
-                    onPress={handleConfirmOpt}>
-                    <Text
-                      style={{
-                        color: '#FFF',
-                        fontWeight: '500',
-                        letterSpacing: 1,
-                      }}>
-                      ✔
-                    </Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    style={{
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginLeft: 15,
-                      paddingHorizontal: 10,
-                      paddingVertical: 10,
-                      elevation: 2,
-                      marginBottom: 10,
-                      backgroundColor: '#fef08a',
-                      borderRadius: 5,
-                    }}
-                    onPress={handleVerify}>
-                    <Text
-                      style={{
-                        color: '#000',
-                        fontWeight: '500',
-                        letterSpacing: 1,
-                      }}>
-                      Verify
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
             {/* {!isActive ? renderOTPInput() : null} */}
             <View style={styles.checkboxContainer}>
               <Text style={styles.label}>Bike Type:</Text>
               <Checkbox
                 label="EV"
-                value={bikeCondition === 'EV'}
+                value={bikeType === 'EV'}
                 onPress={() => {
-                  handleBikeConditionChange('EV');
+                  handleBikeTypeChange('EV');
                   setEV(true);
                 }}
               />
               <Checkbox
                 label="Petrol"
-                value={bikeCondition === 'Petrol'}
+                value={bikeType === 'Petrol'}
                 onPress={() => {
-                  handleBikeConditionChange('Petrol');
+                  handleBikeTypeChange('Petrol');
                   setEV(false);
                 }}
               />
@@ -599,7 +615,7 @@ const CustomerDetails = () => {
                         ) : null}
                       </View>
                       <TouchableOpacity
-                        onPress={AdharcardPicker}
+                        onPress={handleAdharCardCapture}
                         style={[styles.input, styles.documentPicker]}>
                         <Text style={{color: '#000'}}>
                           {Adharcard
@@ -618,7 +634,7 @@ const CustomerDetails = () => {
                     </View>
                     <View style={styles.inputContainer4}>
                       <TouchableOpacity
-                        onPress={LicensePicker}
+                        onPress={handleLicenseCapture}
                         style={[styles.input, styles.documentPicker]}>
                         <Text style={{color: '#000'}}>
                           {License
@@ -634,7 +650,7 @@ const CustomerDetails = () => {
                     </View>
                     <View style={styles.inputContainer5}>
                       <TouchableOpacity
-                        onPress={AdharcardPicker}
+                        onPress={handleAdharCardCapture}
                         style={[styles.input, styles.documentPicker]}>
                         <Text style={{color: '#000'}}>
                           {Adharcard
@@ -658,12 +674,12 @@ const CustomerDetails = () => {
                 alignItems: 'flex-center',
                 position: 'absolute',
                 top: 0,
-                left: 250,
+                right: 15,
               }}>
               <TouchableOpacity
                 style={{
                   backgroundColor: 'white',
-                  paddingHorizontal: 12,
+                  paddingHorizontal: 10,
                   elevation: 3,
                   paddingVertical: 8,
                   borderRadius: 8,
@@ -750,9 +766,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 10,
     color: 'black',
-    
   },
-  
+
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -781,37 +796,33 @@ const styles = StyleSheet.create({
   inputContainer1: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'space-between' ,
+    justifyContent: 'space-between',
     marginBottom: 10,
-    marginTop:30 ,
+    marginTop: 30,
   },
   inputContainer2: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'space-between' ,
+    justifyContent: 'space-between',
     marginBottom: 10,
-   
   },
   inputContainer3: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'space-between' ,
+    justifyContent: 'space-between',
     marginBottom: 10,
-  
   },
   inputContainer4: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'space-between' ,
+    justifyContent: 'space-between',
     marginBottom: 10,
-    
   },
   inputContainer5: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:'space-between' ,
+    justifyContent: 'space-between',
     marginBottom: 10,
-    
   },
   halfInput: {
     flex: 1,
