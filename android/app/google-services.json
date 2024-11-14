@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "16083037423",
+    "project_id": "airyy-33c41",
+    "storage_bucket": "airyy-33c41.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:16083037423:android:54b7a8411b45beb2ae7f1a",
+        "android_client_info": {
+          "package_name": "com.airyy_teams"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4QHdA3YS86VkrT99hvZNi6RcRsGNGtsY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

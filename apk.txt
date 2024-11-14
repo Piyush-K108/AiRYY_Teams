@@ -1,4 +1,28 @@
 
+npm install  @react-native-picker/picker  react-native-date-picker react-native-datepicker  react-native-image-crop-picker react-native-image-picker  react-native-picker-select 
+
+
+chmod +x D:/Airyy/AiRYY_Teams/node_modules/.bin/rnc-cli
+
+rm -rf node_modules
+rm -rf android/build
+rm -rf android/app/build
+
+npm install
+
+
+cd android
+./gradlew clean
+cd ..
+
+
+
+
+
+
+
+
+
 run 
 mkdir android/app/src/main/assets
 npx react-native bundle --dev false --platform android --entry-file index.js --bundle-output ./android/app/src/main/assets/index.android.bundle --assets-dest ./android/app/src/main/res
