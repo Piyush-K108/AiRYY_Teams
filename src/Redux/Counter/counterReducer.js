@@ -1,9 +1,10 @@
-import { BIKE_TYPE, LOGIN} from "./counterActionTypes";
+// counterReducer.js
+import { BIKE_TYPE, LOGIN } from "./counterActionTypes";
 
 const initialState = {
   loggedIn: false,
-  Biketype : 'Petrol',
-  phone:''
+  Biketype: 'Petrol',
+  phone: ''
 };
 
 const counterReducer = (state = initialState, action) => {
@@ -17,9 +18,8 @@ const counterReducer = (state = initialState, action) => {
     case BIKE_TYPE:
       return {
         ...state,
-        Biketype: action.payload 
+        Biketype: action.payload
       };
-
     default:
       return state;
   }

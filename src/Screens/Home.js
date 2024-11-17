@@ -22,7 +22,7 @@ import {useSelector} from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 const Home = () => {
   const dispatch = useDispatch();
-  const phone = useSelector(state => state.counter.phone); // Update the selector path
+  const phone = useSelector(state => state.counter.phone);
   if(!phone){
     console.log('====================================');
     console.log("lohotu not phone");

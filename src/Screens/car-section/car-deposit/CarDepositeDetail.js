@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   checkboxGroup: {
-    flexDirection: 'column',
+    flexDirection: 'row',
     marginBottom: 20,
   },
   checkboxContainer: {

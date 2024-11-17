@@ -8,6 +8,7 @@ C:\Airyy_Management\android\app\build\outputs\apk\release\app-release.apk && npm
 cd android &&  gradlew assembleRelease && cd..
 cd android && .\gradlew clean &&  gradlew assembleRelease && cd..
 cd android && .\gradlew clean &&  cd.. && npm start
+
 >**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
 ## Step 1: Start the Metro Server

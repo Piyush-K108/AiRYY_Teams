@@ -12,29 +12,6 @@ module.exports = {
         verbose: false,
       },
     ],
-    [
-      'react-native-reanimated/plugin',
-      {
-        relativeSourceLocation: true,
-      },
-    ],
-    [
-      '@babel/plugin-transform-class-properties',
-      {
-        loose: true, // set 'loose' mode to true
-      },
-    ],
-    [
-      '@babel/plugin-transform-private-methods',
-      {
-        loose: true, // set 'loose' mode to true
-      },
-    ],
-    [
-      '@babel/plugin-transform-private-property-in-object',
-      {
-        loose: true, // set 'loose' mode to true
-      },
-    ],
+    'react-native-reanimated/plugin',
   ],
 };
