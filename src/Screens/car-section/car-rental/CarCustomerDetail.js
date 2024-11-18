@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import LottieView from 'lottie-react-native';
 import {
   View,
   Text,
@@ -223,18 +224,35 @@ const CarCustomerDetail = () => {
     <ScrollView style={styles.container}>
       <View
         style={{
-          backgroundColor: '#eff6ff',
+          backgroundColor: '#fefce8',
           paddingHorizontal: 20,
           paddingVertical: 20,
           justifyContent: 'center',
           alignItems: 'center',
-          marginBottom: 20,
+          marginLeft: 30,
+          marginRight: 30,
+          marginTop: 20,
+
+          borderRightWidth: 1,
+          borderLeftWidth: 1,
+          borderColor: '#9ca3af',
           borderRadius: 20,
-          elevation: 1,
         }}>
-        <Text style={{color: '#000', fontWeight: 'bold', fontSize: 25}}>
+        <Text style={{color: '#000', fontWeight: 'bold', fontSize: 30}}>
           Customer Detail
         </Text>
+      </View>
+      <View
+        style={{
+          height: 150,
+          width: 150,
+        }}>
+        <LottieView
+          style={{height: 300, width: 250, marginTop: -25}}
+          source={require('../../../assets/carRental.json')}
+          autoPlay
+          loop
+        />
       </View>
 
       {/* Main Driver Info */}
@@ -262,7 +280,7 @@ const CarCustomerDetail = () => {
               handleInputChange('contact', text);
             }}
             keyboardType="phone-pad"
-            style={[styles.input, {width: onn ? 240 : '100%'}]}
+            style={[styles.input, {width: onn ? 220 : '100%'}]}
             placeholderTextColor="#888"
             maxLength={10}
           />
@@ -298,8 +316,8 @@ const CarCustomerDetail = () => {
                 <TouchableOpacity
                   style={{
                     backgroundColor: '#fef08a',
-                    paddingHorizontal: 10,
-                    paddingVertical: 10,
+                    paddingHorizontal: 8,
+                    paddingVertical: 12,
                     elevation: 6,
                     marginLeft: 5,
                   }}
@@ -307,7 +325,7 @@ const CarCustomerDetail = () => {
                   <Text
                     style={[
                       styles.verifyButtonText,
-                      {color: '#000', fontWeight: '600'},
+                      {color: '#000', fontWeight: '600', fontSize: 12},
                     ]}>
                     Verify
                   </Text>
@@ -333,7 +351,7 @@ const CarCustomerDetail = () => {
             <Ionicons
               name="cloud-upload-outline"
               size={20}
-              color="#fff"
+              color="#000"
               style={{marginLeft: 10}}
             />
           </TouchableOpacity>
@@ -345,7 +363,7 @@ const CarCustomerDetail = () => {
             <Ionicons
               name="cloud-upload-outline"
               size={20}
-              color="#fff"
+              color="#000"
               style={{marginLeft: 10}}
             />
           </TouchableOpacity>
@@ -388,7 +406,7 @@ const CarCustomerDetail = () => {
             <Ionicons
               name="cloud-upload-outline"
               size={20}
-              color="#fff"
+              color="#000"
               style={{marginLeft: 10}}
             />
           </TouchableOpacity>
@@ -400,7 +418,7 @@ const CarCustomerDetail = () => {
             <Ionicons
               name="cloud-upload-outline"
               size={20}
-              color="#fff"
+              color="#000"
               style={{marginLeft: 10}}
             />
           </TouchableOpacity>
@@ -419,7 +437,7 @@ const CarCustomerDetail = () => {
         style={{
           justifyContent: 'center',
           alignItems: 'center',
-          marginBottom: 40,
+          marginBottom: 50,
         }}>
         <TouchableOpacity
           style={styles.submitButton}
@@ -440,19 +458,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#fefce8',
   },
   mainDriverContainer: {
     backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
     padding: 30,
     borderRadius: 30,
     marginBottom: 20,
+    margin: 20,
+    marginTop: -20,
   },
   AlternateDriverContainer: {
     backgroundColor: '#fff',
     padding: 30,
     borderRadius: 30,
     marginBottom: 20,
+    margin: 20,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
   },
   sectionTitle: {
     fontSize: 18,
@@ -476,17 +501,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#172554',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    backgroundColor: '#fbbf24',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     borderRadius: 5,
     marginTop: 10,
   },
   submitButton: {
-    backgroundColor: '#bfdbfe',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    width: '100%',
+    backgroundColor: '#eab308',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    width: '90%',
     borderRadius: 15,
     marginTop: 30,
     justifyContent: 'center',
@@ -497,11 +522,13 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
     fontSize: 18,
+    letterSpacing:1,
+    
   },
   buttonText: {
-    color: '#fff',
+    color: '#000',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 13,
   },
   uploadBtnContainer: {
     flexDirection: 'row',
