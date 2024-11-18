@@ -40,6 +40,7 @@ const CarDetail = () => {
     carReadingImage: null,
   });
   const [rentalType, setRentalType] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const [rentalDuration, setRentalDuration] = useState('');
   const [advancePayment, setAdvancePayment] = useState(false);
   const [depositPayment, setDepositPayment] = useState(false);
@@ -48,24 +49,6 @@ const CarDetail = () => {
   const [depositUPI, setDepositUPI] = useState('');
   const [depositCash, setDepositCash] = useState('');
 
-  useEffect(() => {
-    const fetchCarData = async () => {
-      try {
-        const response = await axios.get(`https://${DOMAIN}/Car/car-info/`);
-        const carOptions = response.data
-          .filter(car => car && car.modelName)
-          .map(car => ({
-            label: car.modelName || 'Unknown Model',
-            value: car,
-          }));
-        setCars(carOptions);
-      } catch (error) {
-        Alert.alert('Error', 'Failed to fetch car data');
-      }
-    };
-
-    fetchCarData();
-  }, []);
 
   const handleCarSelect = car => {
     if (car) {
@@ -77,6 +60,29 @@ const CarDetail = () => {
       });
     }
   };
+
+
+
+  const [CarData, setCarData] = useState([]);
+
+  useEffect(() => {
+    const focusHandler = navigation.addListener('focus', () => {
+      fetch(`https://${DOMAIN}/Car/carids/`, {
+        method: 'GET',
+      })
+        .then(response => response.json())
+        .then(responseJson => {
+          setCarData(responseJson);
+          setCars(responseJson);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    });
+   
+    return focusHandler;
+  }, [CarData, navigation, refreshing]);
+
 
   const openCamera = () => {
     launchCamera({}, response => {

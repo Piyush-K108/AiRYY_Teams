@@ -67,7 +67,7 @@ const CarRent = () => {
   });
 
   return (
-    <View style={{flex: 1, backgroundColor: '#eff6ff'}}>
+    <View style={{flex: 1, backgroundColor: '#fefce8'}}>
       <View style={styles.container}>
         <View style={styles.headercontainer2}>
           <Text style={styles.AiryyCars}>AiRYY CARS</Text>
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
   },
   headerContainer: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#fef3c7',
     width: '90%',
     height: 150,
     flexDirection: 'row',
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   headercontainer2: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
-    backgroundColor: '#93c5fd',
+    backgroundColor: '#fde68a',
     width: '100%',
     height: 200,
     alignItems: 'center',
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   AiryyCars: {
     fontSize: 40, // Large font size for emphasis
     fontWeight: 'bold', // Bold to make it stand out
-    color: '#172554', // Light color to contrast with the blue background
+    color: '#000', // Light color to contrast with the blue background
     letterSpacing: 2, // Add some letter spacing for a clean look
     // textShadowColor: '#1d4ed8',   // Dark blue shadow for subtle depth
     textShadowOffset: {width: 4, height: 4}, // Shadow offset for depth effect
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     textAlign: 'center', // Center align to keep it aligned within the parent
   },
   upperTier: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#fefce8',
     width: 100,
     height: 100,
     borderWidth: 10,
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   lowerTier: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#fefce8',
     width: 100,
     height: 100,
     borderWidth: 10,
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     height: 70,
     borderWidth: 1,
     borderRadius: 20,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#fefce8',
   },
   carTitleContainer2: {
     justifyContent: 'center',
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     height: 70,
     borderWidth: 1,
     borderRadius: 20,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#fefce8',
   },
   carTitle1: {
     justifyContent: 'center',
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   button: {
-    backgroundColor: '#93c5fd',
+    backgroundColor: '#fcd34d',
     // width: '45%',
     paddingHorizontal: 30,
     paddingVertical: 10,
@@ -305,4 +305,3 @@ const styles = StyleSheet.create({
 });
 
 export default CarRent;
-

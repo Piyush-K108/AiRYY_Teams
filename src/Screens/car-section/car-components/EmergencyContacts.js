@@ -73,8 +73,8 @@ const EmergencyContact = ({
           <Ionicons
             name="add-circle"
             size={30}
-            color="#172554"
-            // style={{marginLeft: 10}}
+            color="#fbbf24"
+            style={{backgroundColor:'#000' , borderRadius:50}}
           />
         </TouchableOpacity>
       </View>
@@ -142,6 +142,9 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 30,
     marginBottom: 20,
+    margin: 20,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
   },
   headerContainer: {
     flexDirection: 'row',

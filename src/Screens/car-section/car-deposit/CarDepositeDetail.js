@@ -5,12 +5,12 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   Alert,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Image
+  Image,
+  SafeAreaView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
@@ -34,8 +34,7 @@ const CustomCheckBox = ({value, onValueChange}) => {
 
 const CarDepositeDetail = () => {
   const [cars, setCars] = useState([]);
-  const [selectedCar, setSelectedCar] = useState(null); // or set a default car object if you have one
-
+  const [selectedCar, setSelectedCar] = useState(null);
   const [kmNow, setKmNow] = useState('');
   const [isGoodCondition, setIsGoodCondition] = useState(false);
   const [isNotGoodCondition, setIsNotGoodCondition] = useState(false);
@@ -82,16 +81,11 @@ const CarDepositeDetail = () => {
   };
 
   const handleCarSelect = car => {
-    if (!car) {
-      // Do nothing if car is null (initial load)
-      return;
-    }
-
+    if (!car) return;
     if (car.modelName && car.KM_Now) {
       setSelectedCar(car.modelName);
       setKmNow(car.KM_Now);
     } else {
-      console.error('Invalid car data selected:', car);
       Alert.alert('Error', 'Invalid car data selected. Please try again.');
     }
   };
@@ -114,112 +108,112 @@ const CarDepositeDetail = () => {
     });
   };
 
-   const handleConditionChange = condition => {
-     if (condition === 'good') {
-       setIsGoodCondition(true);
-       setIsNotGoodCondition(false);
-     } else if (condition === 'notGood') {
-       setIsGoodCondition(false);
-       setIsNotGoodCondition(true);
-     }
-   };
+  const handleConditionChange = condition => {
+    if (condition === 'good') {
+      setIsGoodCondition(true);
+      setIsNotGoodCondition(false);
+    } else if (condition === 'notGood') {
+      setIsGoodCondition(false);
+      setIsNotGoodCondition(true);
+    }
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <View
-          style={{
-            backgroundColor: '#eff6ff',
-            paddingHorizontal: 20,
-            paddingVertical: 20,
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom: 20,
-            borderRadius: 20,
-            elevation: 1,
-          }}>
-          <Text style={{color: '#000', fontWeight: 'bold', fontSize: 25}}>
-            Deposite Car
-          </Text>
-        </View>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>Deposite Car</Text>
+          </View>
 
-        <View style={styles.formSection}>
-          <Text style={styles.sectionTitle}>Select Car</Text>
-          <RNPickerSelect
-            onValueChange={handleCarSelect}
-            items={cars}
-            placeholder={{label: 'Select a Car', value: null}}
-            value={selectedCar} // set the initial selected value here
-            style={pickerSelectStyles}
-          />
+          <View style={styles.formSection}>
+            <Text style={styles.sectionTitle}>Select Car</Text>
+            <RNPickerSelect
+              onValueChange={handleCarSelect}
+              items={cars}
+              placeholder={{label: 'Select a Car', value: null}}
+              value={selectedCar}
+              style={pickerSelectStyles}
+            />
 
-          <TextInput
-            placeholder="Current Km"
-            value={String(kmNow)}
-            editable={false}
-            style={styles.input}
-            placeholderTextColor="#888"
-          />
+            <TextInput
+              placeholder="Current Km"
+              value={String(kmNow)}
+              editable={false}
+              style={styles.input}
+              placeholderTextColor="#888"
+            />
 
-          <View style={styles.checkboxGroup}>
-            <Text style={styles.sectionTitle}>Condition</Text>
-            <View style={{flexDirection: 'row', marginTop: 15}}>
-              <CustomCheckBox
-                value={isGoodCondition}
-                onValueChange={() => handleConditionChange('good')}
-              />
-              <Text style={styles.checkboxLabel}>Good</Text>
-              <CustomCheckBox
-                value={isNotGoodCondition}
-                onValueChange={() => handleConditionChange('notGood')}
-              />
-              <Text style={styles.checkboxLabel}>Not Good</Text>
+            <View style={styles.checkboxGroup}>
+              <Text style={styles.sectionTitle}>Condition</Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginTop: 15,
+                  justifyContent: 'space-between',
+                }}>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={styles.checkboxLabel}>Good</Text>
+                  <CustomCheckBox
+                    value={isGoodCondition}
+                    onValueChange={() => handleConditionChange('good')}
+                  />
+                </View>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={styles.checkboxLabel}>Not Good</Text>
+                  <CustomCheckBox
+                    value={isNotGoodCondition}
+                    onValueChange={() => handleConditionChange('notGood')}
+                  />
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.uploadBtnContainer}>
+              <TouchableOpacity style={styles.button} onPress={openCamera}>
+                <Text style={styles.buttonText}>Capture Car Reading</Text>
+                <Ionicons
+                  name="cloud-upload-outline"
+                  size={20}
+                  color="#fff"
+                  style={{marginLeft: 10}}
+                />
+              </TouchableOpacity>
+              {carReading && (
+                <View style={styles.imagePreviewContainer}>
+                  <Text style={styles.imageLabel}>Uploaded</Text>
+                  <Image
+                    source={{uri: carReading.uri}}
+                    style={styles.uploadedImage}
+                  />
+                </View>
+              )}
+            </View>
+
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="Enter Km at Deposit"
+              value={depositeKm}
+              onChangeText={setDepositeKm}
+            />
+
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginBottom: 40,
+              }}>
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={handleSubmit}>
+                <Text style={styles.submitButtonText}>Submit</Text>
+              </TouchableOpacity>
             </View>
           </View>
-          <View style={styles.uploadBtnContainer}>
-            <TouchableOpacity style={styles.button} onPress={openCamera}>
-              <Text style={styles.buttonText}>Capture Car Reading</Text>
-              <Ionicons
-                name="cloud-upload-outline"
-                size={20}
-                color="#fff"
-                style={{marginLeft: 10}}
-              />
-            </TouchableOpacity>
-            {carReading && (
-              <View style={styles.imagePreviewContainer}>
-                <Text style={styles.imageLabel}>Uploaded</Text>
-                <Image
-                  source={{uri: carReading.uri}}
-                  style={styles.uploadedImage}
-                />
-              </View>
-            )}
-          </View>
-
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            placeholder="Enter Km at Deposit"
-            value={depositeKm}
-            onChangeText={setDepositeKm}
-          />
-
-          <View
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: 40,
-            }}>
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={handleSubmit}>
-              <Text style={styles.submitButtonText}>Submit</Text>
-            </TouchableOpacity>
-          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -249,34 +243,51 @@ const pickerSelectStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fefce8',
+  },
   scrollContainer: {
-    // flex: 1,
+    flexGrow: 1,
+    backgroundColor: '#fefce8',
     padding: 20,
-    backgroundColor: '#f9f9f9',
-    // height:'100%'
   },
   container: {
-    // flex: 1,
-    backgroundColor: '#f9f9f9',
-    height:'100%' 
+    flex: 1,
+    backgroundColor: '#fefce8',
   },
-
+  header: {
+    backgroundColor: '#fefce8',
+    borderColor: '#d1d5db',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    justifyContent: 'center',
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    margin: 20,
+    alignItems: 'center',
+    marginBottom: 20,
+    borderRadius: 20,
+   
+  },
+  headerText: {
+    color: '#000',
+    fontWeight: 'bold',
+    fontSize: 25,
+  },
   formSection: {
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
-    // elevation: 1,
+    margin: 18,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#333',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
   },
   input: {
     borderWidth: 1,
@@ -288,7 +299,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   checkboxGroup: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     marginBottom: 20,
   },
   checkboxContainer: {
@@ -296,45 +307,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 20,
   },
-  checkboxBox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderColor: '#000',
-    marginRight: 10,
-    backgroundColor: 'transparent',
-    borderRadius: 4,
-  },
-  checkboxChecked: {
-    backgroundColor: '#172554',
-  },
   checkboxLabel: {
     fontSize: 16,
-    color: '#333',
+    color: '#000',
     marginRight: 12,
   },
-  uploadedText: {
-    marginTop: 10,
-    color: '#4CAF50',
-    fontSize: 14,
-  },
-
-  submitButton: {
-    backgroundColor: '#86efac',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    width: '100%',
-    borderRadius: 15,
-    marginTop: 30,
-    justifyContent: 'center',
+  uploadBtnContainer: {
     alignItems: 'center',
+    marginTop: 20,
   },
-  submitButtonText: {
-    color: '#000',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-
   button: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -351,26 +332,33 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
-  uploadBtnContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
   imagePreviewContainer: {
+    marginTop: 10,
     alignItems: 'center',
-  },
-  imageLabel: {
-    color: '#000',
-    fontWeight: 'bold',
-    marginBottom: 10,
-    fontSize: 9,
   },
   uploadedImage: {
-    width: 280,
-    height: 150,
-    borderRadius: 5,
-    marginBottom: 20,
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  imageLabel: {
+    color: '#333',
+    fontSize: 16,
+  },
+  submitButton: {
+    backgroundColor: '#1d4ed8',
+    paddingHorizontal: 100,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  submitButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
   },
 });
 
