@@ -15,6 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import EmergencyContact from '../car-components/EmergencyContacts';
 import {useNavigation} from '@react-navigation/native';
 import {DOMAIN} from '@env';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import RNFS from 'react-native-fs';
 import {useSelector} from 'react-redux';
 
@@ -22,10 +23,20 @@ const CarCustomerDetail = () => {
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const [count, setcount] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [onn, setonn] = useState(false);
   const [isLoadingOtp, setIsLoadingOtp] = useState(false);
   const [isOptReceived, setIsOptReceived] = useState(false);
   const [User, setUser] = useState([]);
+  const [userName, setUserName] = useState('');
+  const [LastName, setLastName] = useState('');
+  const [Adharcard, setAdharcard] = useState('');
+  const [Adharcardname, setAdharcardname] = useState('');
+  const [Licensename, setLicensename] = useState('');
+  const [License, setLicense] = useState('');
+  const [userNameError, setuserNameError] = useState('');
+
+  const [phoneNumberError, setPhoneNumberError] = useState('');
   const [EmergencyCOntact, setEmergencyCOntact] = useState([]);
   const phone = useSelector(state => state.counter.phone);
   const [isActive, setisActive] = useState(true);
@@ -55,14 +66,14 @@ const CarCustomerDetail = () => {
   const fetchData = async () => {
     try {
       const response = await fetch(
-        `https://${DOMAIN}/Bike/usercount/${userDetails.contact}/`,
+        `https://${DOMAIN}/Bike/usercount/${phoneNumber}/`,
       );
       const data = await response.json();
       setcount(data);
       setonn(true);
-
+      console.log(phoneNumber);
       const response2 = await fetch(
-        `https://${DOMAIN}/User/Profile/${userDetails.contact}/`,
+        `https://${DOMAIN}/User/Profile/${phoneNumber}/`,
       );
       const data2 = await response2.json();
 
@@ -77,11 +88,11 @@ const CarCustomerDetail = () => {
           altName: nameParts[1] || '',
           adharCardImage: {
             uri: data2.data.Adhar_Card,
-            name: `${userDetails.contact}_Adhar_Card.jpg`,
+            name: `${phoneNumber}_Adhar_Card.jpg`,
           },
           licenseImage: {
             uri: data2.data.license_id,
-            name: `${userDetails.contact}_License.jpg`,
+            name: `${phoneNumber}_License.jpg`,
           },
         }));
       }
@@ -91,19 +102,43 @@ const CarCustomerDetail = () => {
   };
 
   useEffect(() => {
-    if (userDetails.contact.length >= 10) {
+    if (phoneNumber.length >= 10) {
       setIsLoading(true);
       fetchData();
       setIsLoading(false);
     }
-  }, [userDetails.contact]);
+  }, [phoneNumber]);
 
   const handleVerify = () => {
+    // Simulate sending OTP to user
+    if (User) {
+      console.log(User);
+      // Trim any leading or trailing whitespace from the name
+      const trimmedName = User.name.trim();
+
+      // Split the name into parts based on space
+      const nameParts = trimmedName.split(' ');
+
+      // Extract first name and last name, assuming there is at least one space
+      const fname = nameParts[0] || '';
+      const lname = nameParts[1] || '';
+
+      // Set the state with first name and last name
+      setUserName(fname);
+      setLastName(lname);
+      setAdharcard(User.Adhar_Card);
+      setAdharcardname(phoneNumber + '_Adhar_Card.jpg');
+      setLicense(User.license_id);
+      setLicensename(phoneNumber + '_License.jpg');
+    } else {
+      setisActive(false);
+    }
+
     setIsLoadingOtp(true);
     setTimeout(() => {
       setIsLoadingOtp(false);
       setIsOptReceived(true);
-    }, 3000);
+    }, 3000); // Simulating a delay of 3 seconds for receiving OTP
   };
 
   const handleConfirmOtp = () => {
@@ -123,7 +158,7 @@ const CarCustomerDetail = () => {
         launchCamera(options, response => {
           if (response.assets) {
             const imageUri = response.assets[0].uri;
-            const imageName = `${userDetails.contact}_${field}.jpg`;
+            const imageName = `${phoneNumber}_${field}.jpg`;
             resolve({uri: imageUri, name: imageName});
           } else {
             resolve(null);
@@ -170,7 +205,7 @@ const CarCustomerDetail = () => {
 
     // try {
     //   const response = await fetch(
-    //     `https://${DOMAIN}/Bike/assign_bike_to_user/${userDetails.contact}/`,
+    //     `https://${DOMAIN}/Bike/assign_bike_to_user/${phoneNumber}/`,
     //     {
     //       method: 'PUT',
     //       body: data,
@@ -183,19 +218,19 @@ const CarCustomerDetail = () => {
     //     Alert.alert('Error', responseJson.Error);
     //   } else if (User && User.Signature && !EmergencyCOntact) {
     //     navigation.navigate('EmergencyCar', {
-    //       phoneNumber: userDetails.contact,
+    //       phoneNumber: phoneNumber,
     //       EV: false,
     //       userName: userDetails.name,
     //     });
     //   } else if (User && User.Signature && EmergencyCOntact) {
     //     navigation.navigate('CarDetails', {
-    //       phoneNumber: userDetails.contact,
+    //       phoneNumber: phoneNumber,
     //       EV: false,
     //       userName: userDetails.name,
     //     });
     //   } else {
     //     navigation.navigate('AgreementPage', {
-    //       phoneNumber: userDetails.contact,
+    //       phoneNumber: phoneNumber,
     //       EV: false,
     //       userName: userDetails.name,
     //       car: true,
@@ -210,15 +245,15 @@ const CarCustomerDetail = () => {
     navigation.navigate('CarDetail');
   };
 
-    const handleAddEmergencyContact = () => {
-      setUserDetails(prevState => ({
-        ...prevState,
-        emergencyContacts: [
-          ...prevState.emergencyContacts,
-          {emergencyName: '', emergencyContact: '', emergencyRelation: ''},
-        ],
-      }));
-    };
+  const handleAddEmergencyContact = () => {
+    setUserDetails(prevState => ({
+      ...prevState,
+      emergencyContacts: [
+        ...prevState.emergencyContacts,
+        {emergencyName: '', emergencyContact: '', emergencyRelation: ''},
+      ],
+    }));
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -248,7 +283,7 @@ const CarCustomerDetail = () => {
           width: 150,
         }}>
         <LottieView
-          style={{height: 300, width: 250, marginTop: -25}}
+          style={{height: 300, width: 250, marginTop: -65}}
           source={require('../../../assets/carRental.json')}
           autoPlay
           loop
@@ -264,19 +299,24 @@ const CarCustomerDetail = () => {
             alignItems: 'center',
           }}>
           <Text style={styles.sectionTitle}>Main Driver</Text>
-          {userDetails.contact.length >= 10 && (
+          {phoneNumber.length >= 10 && (
             <Text style={styles.sectionTitle}>Count - {count}</Text>
-          )}
+          ) }
         </View>
 
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <View style={styles.inputContainer1}>
           <TextInput
             placeholder="Contact Number"
             value={userDetails.contact}
             onChangeText={text => {
               if (text.length < 10) {
                 setonn(false);
+              
+              } else {
+                setPhoneNumber(userDetails.contact);
+                setonn(true);
               }
+    
               handleInputChange('contact', text);
             }}
             keyboardType="phone-pad"
@@ -305,7 +345,7 @@ const CarCustomerDetail = () => {
                     paddingHorizontal: 5,
                     paddingVertical: 10,
                     marginLeft: 5,
-                    // backgroundColor: '#22c55e',
+                    backgroundColor: '#fef08a',
                     borderWidth: 1,
                     borderRadius: 10,
                   }}
@@ -334,14 +374,28 @@ const CarCustomerDetail = () => {
             </View>
           )}
         </View>
+        <View style={{marginLeft: 20, marginBottom: 10}}>
+          {userNameError ? (
+            <Text style={styles.errorText}>{userNameError}</Text>
+          ) : null}
+        </View>
 
-        <TextInput
-          placeholder="Name"
-          value={userDetails.name}
-          onChangeText={text => handleInputChange('name', text)}
-          style={styles.input}
-          placeholderTextColor="#888"
-        />
+        <View style={styles.inputContainer2}>
+          <TextInput
+            placeholder="First Name"
+            placeholderTextColor="#000"
+            value={userName}
+            onChangeText={text => setUserName(text)}
+            style={[styles.input, styles.halfInput]} // Apply halfInput style for each TextInput
+          />
+          <TextInput
+            placeholder="Last Name"
+            placeholderTextColor="#000"
+            value={LastName}
+            onChangeText={text => setLastName(text)}
+            style={[styles.input, styles.halfInput]} // Apply halfInput style for each TextInput
+          />
+        </View>
 
         <View style={styles.uploadBtnContainer}>
           <TouchableOpacity
@@ -460,6 +514,12 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fefce8',
   },
+  inputContainer1: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
   mainDriverContainer: {
     backgroundColor: '#fff',
     borderWidth: 1,
@@ -522,8 +582,7 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
     fontSize: 18,
-    letterSpacing:1,
-    
+    letterSpacing: 1,
   },
   buttonText: {
     color: '#000',
