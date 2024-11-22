@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {DOMAIN} from '@env';
+import LottieView from 'lottie-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {
   View,
@@ -10,6 +11,7 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  Dimensions
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -31,6 +33,7 @@ const CustomCheckBox = ({value, onValueChange}) => {
 };
 
 const CarDetail = () => {
+   const {width, height} = Dimensions.get('window');
      const navigation = useNavigation();
   const [cars, setCars] = useState([]);
   const [selectedCar, setSelectedCar] = useState('');
@@ -40,7 +43,6 @@ const CarDetail = () => {
     carReadingImage: null,
   });
   const [rentalType, setRentalType] = useState('');
-  const [refreshing, setRefreshing] = useState(false);
   const [rentalDuration, setRentalDuration] = useState('');
   const [advancePayment, setAdvancePayment] = useState(false);
   const [depositPayment, setDepositPayment] = useState(false);
@@ -49,6 +51,24 @@ const CarDetail = () => {
   const [depositUPI, setDepositUPI] = useState('');
   const [depositCash, setDepositCash] = useState('');
 
+  useEffect(() => {
+    const fetchCarData = async () => {
+      try {
+        const response = await axios.get(`https://${DOMAIN}/Car/car-info/`);
+        const carOptions = response.data
+          .filter(car => car && car.modelName)
+          .map(car => ({
+            label: car.modelName || 'Unknown Model',
+            value: car,
+          }));
+        setCars(carOptions);
+      } catch (error) {
+        Alert.alert('Error', 'Failed to fetch car data');
+      }
+    };
+
+    fetchCarData();
+  }, []);
 
   const handleCarSelect = car => {
     if (car) {
@@ -60,29 +80,6 @@ const CarDetail = () => {
       });
     }
   };
-
-
-
-  const [CarData, setCarData] = useState([]);
-
-  useEffect(() => {
-    const focusHandler = navigation.addListener('focus', () => {
-      fetch(`https://${DOMAIN}/Car/carids/`, {
-        method: 'GET',
-      })
-        .then(response => response.json())
-        .then(responseJson => {
-          setCarData(responseJson);
-          setCars(responseJson);
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    });
-   
-    return focusHandler;
-  }, [CarData, navigation, refreshing]);
-
 
   const openCamera = () => {
     launchCamera({}, response => {
@@ -122,19 +119,48 @@ const CarDetail = () => {
       <View style={styles.container}>
         <View
           style={{
-            backgroundColor: '#eff6ff',
+            backgroundColor: '#fefce8',
             paddingHorizontal: 20,
             paddingVertical: 20,
             justifyContent: 'center',
             alignItems: 'center',
-            marginBottom: 20,
+            marginLeft: 30,
+            marginRight: 30,
+            marginTop: 20,
+
+            borderRightWidth: 1,
+            borderLeftWidth: 1,
+            borderColor: '#9ca3af',
             borderRadius: 20,
-            elevation: 1,
           }}>
-          <Text style={{color: '#000', fontWeight: 'bold', fontSize: 25}}>
+          <Text
+            style={{
+              color: '#000',
+              fontWeight: 'bold',
+              fontSize: 25,
+              textTransform: 'uppercase',
+            }}>
             Car Detail
           </Text>
         </View>
+        {/* <View
+          style={{
+            height: height * 0.2, // Use height based on the screen size
+            width: width * 0.5,
+            position: 'relative',
+            top: 70,
+          }}>
+          <LottieView
+            style={{
+              height: height * 0.3, // Adjust LottieView height dynamically
+              width: width * 0.65, // Adjust LottieView width dynamically
+              marginTop: -height * 0.05, // Adjust margin dynamically based on height
+            }}
+            source={require('../../../assets/cardetail.json')}
+            autoPlay
+            loop
+          />
+        </View> */}
 
         <View style={styles.carSelectionContainer}>
           <Text style={styles.sectionTitle}>Select Car</Text>
@@ -167,7 +193,7 @@ const CarDetail = () => {
               <Ionicons
                 name="cloud-upload-outline"
                 size={20}
-                color="#fff"
+                color="#000"
                 style={{marginLeft: 10}}
               />
             </TouchableOpacity>
@@ -291,16 +317,19 @@ const CarDetail = () => {
 const styles = StyleSheet.create({
   scrollContainer: {
     padding: 20,
+    backgroundColor: '#fefce8',
   },
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   carSelectionContainer: {
     backgroundColor: '#fff',
     padding: 30,
     borderRadius: 30,
     marginBottom: 20,
+    margin: 35,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   sectionTitle: {
     fontSize: 18,
@@ -322,16 +351,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#172554',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    backgroundColor: '#fbbf24',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
     borderRadius: 5,
     marginTop: 10,
   },
   buttonText: {
-    color: '#fff',
+    color: '#000',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 13,
   },
   uploadBtnContainer: {
     flexDirection: 'row',
@@ -345,12 +374,12 @@ const styles = StyleSheet.create({
   imageLabel: {
     color: '#000',
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 2,
     fontSize: 9,
   },
   uploadedImage: {
     width: 50,
-    height: 50,
+    height: 40,
     borderRadius: 5,
   },
   checkboxContainer: {
@@ -358,12 +387,14 @@ const styles = StyleSheet.create({
   },
 
   submitButton: {
-    backgroundColor: '#86efac',
+    backgroundColor: '#fbbf24',
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    width: '100%',
+    paddingVertical: 12,
+    width: '80%',
+
     borderRadius: 15,
     marginTop: 30,
+    margin: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -371,6 +402,8 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
     fontSize: 18,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
 });
 

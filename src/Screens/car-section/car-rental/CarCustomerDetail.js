@@ -8,6 +8,7 @@ import {
   Alert,
   TouchableOpacity,
   StyleSheet,
+  Dimensions,
   ActivityIndicator,
 } from 'react-native';
 import {launchCamera} from 'react-native-image-picker';
@@ -21,6 +22,7 @@ import {useSelector} from 'react-redux';
 
 const CarCustomerDetail = () => {
   const navigation = useNavigation();
+  const {width, height} = Dimensions.get('window');
   const [isLoading, setIsLoading] = useState(false);
   const [count, setcount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -145,10 +147,15 @@ const CarCustomerDetail = () => {
     setIsOptReceived(false);
   };
 
-  const handleInputChange = (field, value) => {
-    setUserDetails(prev => ({
-      ...prev,
-      [field]: value,
+  const handleInputChange = (field, index, subfield, value) => {
+    setUserDetails(prevState => ({
+      ...prevState,
+      [field]: prevState[field].map((item, idx) => {
+        if (idx === index) {
+          return {...item, [subfield]: value};
+        }
+        return item;
+      }),
     }));
   };
 
@@ -279,11 +286,17 @@ const CarCustomerDetail = () => {
       </View>
       <View
         style={{
-          height: 150,
-          width: 150,
+          height: height * 0.2, // Use height based on the screen size
+          width: width * 0.5,
+          position:'relative' ,
+          top:70 ,
         }}>
         <LottieView
-          style={{height: 300, width: 250, marginTop: -65}}
+          style={{
+            height: height * 0.3, // Adjust LottieView height dynamically
+            width: width * 0.65, // Adjust LottieView width dynamically
+            marginTop: -height * 0.05, // Adjust margin dynamically based on height
+          }}
           source={require('../../../assets/carRental.json')}
           autoPlay
           loop

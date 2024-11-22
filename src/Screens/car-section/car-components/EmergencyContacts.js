@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -15,11 +16,15 @@ const EmergencyContact = ({
   handleInputChange,
   handleAddEmergencyContact,
 }) => {
+  // Ensure userDetails.emergencyContacts is always an array
+  const emergencyContacts = userDetails?.emergencyContacts || [];
+
   // State to handle error messages
   const [errorMessages, setErrorMessages] = useState({});
 
+  // Function to validate input fields for each contact
   const validateInput = index => {
-    const contact = userDetails.emergencyContacts[index];
+    const contact = emergencyContacts[index];
     let errors = {};
 
     // Validate emergencyName
@@ -46,41 +51,49 @@ const EmergencyContact = ({
     return Object.keys(errors).length === 0;
   };
 
+  // Handle text input change for each emergency contact
   const handleChange = (index, field, value) => {
-    // Update value in the parent state
-    handleInputChange('emergencyContacts', index, field, value);
-    // Validate after each input change
-    validateInput(index);
+    handleInputChange('emergencyContacts', index, field, value); // Update value in parent state
+    validateInput(index); // Validate after each input change
+  };
+
+  // Handle the action to add a new emergency contact
+  const handleAddContact = () => {
+    // Validate all the emergency contacts before adding new one
+    let allValid = true;
+    emergencyContacts.forEach((_, index) => {
+      if (!validateInput(index)) {
+        allValid = false;
+      }
+    });
+
+    // If all fields are valid, add a new emergency contact
+    if (allValid) {
+      handleAddEmergencyContact();
+    } else {
+      Alert.alert(
+        'Error',
+        'Please correct the errors before adding a new contact',
+      );
+    }
   };
 
   return (
     <View style={styles.emergencyContactContainer}>
       <View style={styles.headerContainer}>
         <Text style={styles.sectionTitle}>Emergency Contacts</Text>
-        <TouchableOpacity
-          //   style={styles.addButton}
-          onPress={() => {
-            let allValid = true;
-            userDetails.emergencyContacts.forEach((_, index) => {
-              if (!validateInput(index)) {
-                allValid = false;
-              }
-            });
-            if (allValid) {
-              handleAddEmergencyContact();
-            }
-          }}>
+        <TouchableOpacity onPress={handleAddContact}>
           <Ionicons
             name="add-circle"
             size={30}
             color="#fbbf24"
-            style={{backgroundColor:'#000' , borderRadius:50}}
+            style={{backgroundColor: '#000', borderRadius: 50}}
           />
         </TouchableOpacity>
       </View>
 
       <ScrollView>
-        {userDetails.emergencyContacts.map((contact, index) => (
+        {emergencyContacts.map((contact, index) => (
           <View key={index} style={styles.contactContainer}>
             <TextInput
               placeholder={`Emergency Name ${index + 1}`}
