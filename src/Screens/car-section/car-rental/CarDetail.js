@@ -99,7 +99,7 @@ const CarDetail = () => {
    if (selectedCar) {
      Alert.alert(
        'Car Rental Confirmation',
-       `You have given the car ${selectedCar} to the user.`,
+       `Given the car ${selectedCar} to the user.`,
        [
          {
            text: 'OK',
