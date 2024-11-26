@@ -24,37 +24,54 @@ const CarCustomerDetail = () => {
   const navigation = useNavigation();
   const {width, height} = Dimensions.get('window');
   const [isLoading, setIsLoading] = useState(false);
-  const [count, setcount] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [onn, setonn] = useState(false);
-  const [isLoadingOtp, setIsLoadingOtp] = useState(false);
-  const [isOptReceived, setIsOptReceived] = useState(false);
   const [User, setUser] = useState([]);
-  const [userName, setUserName] = useState('');
+  const [FirstName, setFirstName] = useState('');
   const [LastName, setLastName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [Adharcard, setAdharcard] = useState('');
   const [Adharcardname, setAdharcardname] = useState('');
   const [Licensename, setLicensename] = useState('');
   const [License, setLicense] = useState('');
-  const [userNameError, setuserNameError] = useState('');
 
-  const [phoneNumberError, setPhoneNumberError] = useState('');
+  const [ALTUser, setALTUser] = useState([]);
+  const [ALTFirstName, setALTFirstName] = useState('');
+  const [ALTLastName, setALTLastName] = useState('');
+  const [ALTphoneNumber, setALTPhoneNumber] = useState('');
+  const [ALTAdharcard, setALTAdharcard] = useState('');
+  const [ALTAdharcardname, setALTAdharcardname] = useState('');
+  const [ALTLicensename, setALTLicensename] = useState('');
+  const [ALTLicense, setALTLicense] = useState('');
+
   const [EmergencyCOntact, setEmergencyCOntact] = useState([]);
-  const phone = useSelector(state => state.counter.phone);
+
   const [isActive, setisActive] = useState(true);
 
-  const [userDetails, setUserDetails] = useState({
-    name: '',
-    contact: '',
-    adharCardImage: null,
-    licenseImage: null,
-    altName: '',
-    altContact: '',
-    altAdharCardImage: null,
-    altLicenseImage: null,
-    emergencyContacts: [
-      {emergencyName: '', emergencyContact: '', emergencyRelation: ''},
-    ],
+  const [OTP, setOTP] = useState(false);
+  const [isDocument, setisDocument] = useState(false);
+  const [isChanged, setisChanged] = useState(false);
+
+  const [count, setcount] = useState('');
+  const [onn, setonn] = useState(false);
+
+  const [FirstNameError, setFirstNameError] = useState('');
+  const [LastNameError, setLastNameError] = useState('');
+  const [phoneNumberError, setPhoneNumberError] = useState('');
+  const [adharCardError, setAdharCardError] = useState('');
+  const [licenseError, setLicenseError] = useState('');
+
+  const [ALTFirstNameError, setALTFirstNameError] = useState('');
+  const [ALTLastNameError, setALTLastNameError] = useState('');
+  const [ALTphoneNumberError, setALTPhoneNumberError] = useState('');
+  const [ALTadharCardError, setALTAdharCardError] = useState('');
+  const [ALTlicenseError, setALTLicenseError] = useState('');
+
+  const [isLoadingOtp, setIsLoadingOtp] = useState(false);
+  const [isOptReceived, setIsOptReceived] = useState(false);
+
+  const [emergencyContact, setemergencyContact] = useState({
+    emergencyName: '',
+    emergencyContact: '',
+    emergencyRelation: '',
   });
 
   const options = {
@@ -82,22 +99,12 @@ const CarCustomerDetail = () => {
       setUser(data2.data);
       setEmergencyCOntact(data2.emergency);
 
-      if (data2.data) {
-        const nameParts = data2.data.name.split(' ');
-        setUserDetails(prev => ({
-          ...prev,
-          name: nameParts[0] || '',
-          altName: nameParts[1] || '',
-          adharCardImage: {
-            uri: data2.data.Adhar_Card,
-            name: `${phoneNumber}_Adhar_Card.jpg`,
-          },
-          licenseImage: {
-            uri: data2.data.license_id,
-            name: `${phoneNumber}_License.jpg`,
-          },
-        }));
-      }
+      //  else {
+      //   // otp logic
+      //   // const response = await fetch(
+      //   //   `https://${DOMAIN}/Bike/sendotp/${phoneNumber}/`,
+      //   // );
+      // }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -107,8 +114,8 @@ const CarCustomerDetail = () => {
     if (phoneNumber.length >= 10) {
       setIsLoading(true);
       fetchData();
-      setIsLoading(false);
     }
+    setIsLoading(false);
   }, [phoneNumber]);
 
   const handleVerify = () => {
@@ -126,7 +133,7 @@ const CarCustomerDetail = () => {
       const lname = nameParts[1] || '';
 
       // Set the state with first name and last name
-      setUserName(fname);
+      setFirstName(fname);
       setLastName(lname);
       setAdharcard(User.Adhar_Card);
       setAdharcardname(phoneNumber + '_Adhar_Card.jpg');
@@ -148,7 +155,7 @@ const CarCustomerDetail = () => {
   };
 
   const handleInputChange = (field, index, subfield, value) => {
-    setUserDetails(prevState => ({
+    setemergencyContact(prevState => ({
       ...prevState,
       [field]: prevState[field].map((item, idx) => {
         if (idx === index) {
@@ -174,7 +181,7 @@ const CarCustomerDetail = () => {
       });
 
       if (result) {
-        setUserDetails(prev => ({
+        setemergencyContact(prev => ({
           ...prev,
           [field]: result,
         }));
@@ -187,28 +194,28 @@ const CarCustomerDetail = () => {
 
   const handleSubmit = async () => {
     // setIsLoading(true);
-    // const data = new FormData();
+    const userdata = new FormData();
+    const emergencydata = new FormData();
 
-    // // Append main driver documents
-    // if (userDetails.adharCardImage) {
-    //   data.append('Adhar_Card', {
-    //     uri: userDetails.adharCardImage.uri,
-    //     type: 'image/jpeg',
-    //     name: userDetails.adharCardImage.name,
-    //   });
-    // }
+    // Append main driver documents
+    if (emergencyContact.adharCardImage) {
+      data.append('Adhar_Card', {
+        uri: emergencyContact.adharCardImage.uri,
+        type: 'image/jpeg',
+        name: emergencyContact.adharCardImage.name,
+      });
+    }
 
-    // if (userDetails.licenseImage) {
-    //   data.append('license_id', {
-    //     uri: userDetails.licenseImage.uri,
-    //     type: 'image/jpeg',
-    //     name: userDetails.licenseImage.name,
-    //   });
-    // }
+    if (emergencyContact.licenseImage) {
+      data.append('license_id', {
+        uri: emergencyContact.licenseImage.uri,
+        type: 'image/jpeg',
+        name: emergencyContact.licenseImage.name,
+      });
+    }
 
-    // data.append('fname', userDetails.name);
-    // data.append('lname', userDetails.altName);
-    // data.append('EV', false);
+    data.append('fname', emergencyContact.name);
+    data.append('lname', emergencyContact.altName);
 
     // try {
     //   const response = await fetch(
@@ -227,19 +234,19 @@ const CarCustomerDetail = () => {
     //     navigation.navigate('EmergencyCar', {
     //       phoneNumber: phoneNumber,
     //       EV: false,
-    //       userName: userDetails.name,
+    //       FirstName: emergencyContact.name,
     //     });
     //   } else if (User && User.Signature && EmergencyCOntact) {
     //     navigation.navigate('CarDetails', {
     //       phoneNumber: phoneNumber,
     //       EV: false,
-    //       userName: userDetails.name,
+    //       FirstName: emergencyContact.name,
     //     });
     //   } else {
     //     navigation.navigate('AgreementPage', {
     //       phoneNumber: phoneNumber,
     //       EV: false,
-    //       userName: userDetails.name,
+    //       FirstName: emergencyContact.name,
     //       car: true,
     //     });
     //   }
@@ -253,7 +260,7 @@ const CarCustomerDetail = () => {
   };
 
   const handleAddEmergencyContact = () => {
-    setUserDetails(prevState => ({
+    setemergencyContact(prevState => ({
       ...prevState,
       emergencyContacts: [
         ...prevState.emergencyContacts,
@@ -288,14 +295,14 @@ const CarCustomerDetail = () => {
         style={{
           height: height * 0.2, // Use height based on the screen size
           width: width * 0.5,
-          position:'relative' ,
-          top:70 ,
+          position: 'relative',
+          top: 70,
         }}>
         <LottieView
           style={{
-            height: height * 0.3, // Adjust LottieView height dynamically
-            width: width * 0.65, // Adjust LottieView width dynamically
-            marginTop: -height * 0.05, // Adjust margin dynamically based on height
+            height: height * 0.3,
+            width: width * 0.65,
+            marginTop: -height * 0.15,
           }}
           source={require('../../../assets/carRental.json')}
           autoPlay
@@ -312,29 +319,24 @@ const CarCustomerDetail = () => {
             alignItems: 'center',
           }}>
           <Text style={styles.sectionTitle}>Main Driver</Text>
-          {phoneNumber.length >= 10 && (
+          {phoneNumber.length >= 10 ? (
             <Text style={styles.sectionTitle}>Count - {count}</Text>
-          ) }
+          ) : null}
         </View>
 
         <View style={styles.inputContainer1}>
           <TextInput
             placeholder="Contact Number"
-            value={userDetails.contact}
+            value={phoneNumber}
             onChangeText={text => {
               if (text.length < 10) {
                 setonn(false);
-              
-              } else {
-                setPhoneNumber(userDetails.contact);
-                setonn(true);
               }
-    
-              handleInputChange('contact', text);
+              setPhoneNumber(text);
             }}
             keyboardType="phone-pad"
             style={[styles.input, {width: onn ? 220 : '100%'}]}
-            placeholderTextColor="#888"
+            placeholderTextColor="#000"
             maxLength={10}
           />
 
@@ -388,8 +390,8 @@ const CarCustomerDetail = () => {
           )}
         </View>
         <View style={{marginLeft: 20, marginBottom: 10}}>
-          {userNameError ? (
-            <Text style={styles.errorText}>{userNameError}</Text>
+          {FirstNameError ? (
+            <Text style={styles.errorText}>{FirstNameError}</Text>
           ) : null}
         </View>
 
@@ -397,8 +399,8 @@ const CarCustomerDetail = () => {
           <TextInput
             placeholder="First Name"
             placeholderTextColor="#000"
-            value={userName}
-            onChangeText={text => setUserName(text)}
+            value={FirstName}
+            onChangeText={text => setFirstName(text)}
             style={[styles.input, styles.halfInput]} // Apply halfInput style for each TextInput
           />
           <TextInput
@@ -451,18 +453,18 @@ const CarCustomerDetail = () => {
 
         <TextInput
           placeholder="Alternate Driver Contact"
-          value={userDetails.altContact}
+          value={emergencyContact.altContact}
           onChangeText={text => handleInputChange('altContact', text)}
           keyboardType="phone-pad"
           style={styles.input}
-          placeholderTextColor="#888"
+          placeholderTextColor="#000"
         />
         <TextInput
           placeholder="Alternate Driver Name"
-          value={userDetails.altName}
+          value={emergencyContact.altName}
           onChangeText={text => handleInputChange('altName', text)}
           style={styles.input}
-          placeholderTextColor="#888"
+          placeholderTextColor="#000"
         />
 
         <View style={styles.uploadBtnContainer}>
@@ -494,7 +496,7 @@ const CarCustomerDetail = () => {
 
       {/* Emergency Contact */}
       <EmergencyContact
-        userDetails={userDetails}
+        emergencyContact={emergencyContact}
         handleInputChange={handleInputChange}
         handleAddEmergencyContact={handleAddEmergencyContact}
       />

@@ -40,30 +40,16 @@ const Checkbox = ({label, value, onPress}) => {
 
 const CustomerDetails = () => {
   const [userName, setUserName] = useState('');
-  const [car, setcar] = useState(false);
   const [User, setUser] = useState([]);
   const [EmergencyCOntact, setEmergencyCOntact] = useState([]);
-  const route = useRoute();
 
-  useEffect(() => {
-    if (route.params && route.params.car) {
-      setcar(route.params.car);
-      console.log("car",route.params.car)
-    } else {
-      console.log("car",car)
-      setcar(false);
-    }
-  }, [route.params, navigation]);
 
   const [LastName, setLastName] = useState('');
   const [bikeType, setBikeType] = useState('EV');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const phone = useSelector(state => state.counter.phone);
   const [EV, setEV] = useState(true);
   const [Adharcard, setAdharcard] = useState('');
   const [Adharcardname, setAdharcardname] = useState('');
-  const [Image, setImage] = useState(null);
-  const [Imagename, setImagename] = useState(null);
   const [Licensename, setLicensename] = useState('');
   const [License, setLicense] = useState('');
   const [isLoading, setIsLoading] = useState(false);
