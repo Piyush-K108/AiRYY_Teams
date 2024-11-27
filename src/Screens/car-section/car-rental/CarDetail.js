@@ -11,13 +11,13 @@ import {
   StyleSheet,
   Image,
   ScrollView,
-  Dimensions
+  Dimensions,
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {launchCamera} from 'react-native-image-picker';
 import axios from 'axios';
-
+import {useRoute} from '@react-navigation/core';
 const CustomCheckBox = ({value, onValueChange}) => {
   return (
     <TouchableOpacity
@@ -33,8 +33,8 @@ const CustomCheckBox = ({value, onValueChange}) => {
 };
 
 const CarDetail = () => {
-   const {width, height} = Dimensions.get('window');
-     const navigation = useNavigation();
+  const {width, height} = Dimensions.get('window');
+  const navigation = useNavigation();
   const [cars, setCars] = useState([]);
   const [selectedCar, setSelectedCar] = useState('');
   const [carDetails, setCarDetails] = useState({
@@ -42,6 +42,8 @@ const CarDetail = () => {
     KM_Now: '',
     carReadingImage: null,
   });
+  const route = useRoute();
+  const {phoneNumber} = route.params;
   const [rentalType, setRentalType] = useState('');
   const [rentalDuration, setRentalDuration] = useState('');
   const [advancePayment, setAdvancePayment] = useState(false);
@@ -49,6 +51,7 @@ const CarDetail = () => {
   const [advanceUPI, setAdvanceUPI] = useState('');
   const [advanceCash, setAdvanceCash] = useState('');
   const [depositUPI, setDepositUPI] = useState('');
+
   const [depositCash, setDepositCash] = useState('');
 
   useEffect(() => {
@@ -95,24 +98,61 @@ const CarDetail = () => {
     });
   };
 
- const handleSubmit = () => {
-   if (selectedCar) {
-     Alert.alert(
-       'Car Rental Confirmation',
-       `Given the car ${selectedCar} to the user.`,
-       [
-         {
-           text: 'OK',
-           onPress: () => navigation.navigate('CarHome'),
-         },
-       ],
-     );
-   } else {
-     Alert.alert('Error', 'Please select a car before submitting.');
-   }
- };
+  const handleSubmit = async () => {
+    // Validate required fields
+    if (!selectedCar || !rentalType || !rentalDuration || !phoneNumber) {
+      Alert.alert('Error', 'Please fill all the required fields.');
+      return;
+    }
+
+    try {
+      // Prepare data payload
+      const formData = new FormData();
+      formData.append('carid', selectedCar.carid);
+      formData.append('fuelType', carDetails.fuelType);
+      formData.append('KM_Now', carDetails.KM_Now);
+      formData.append('rentalType', rentalType);
+      formData.append('rentalDuration', rentalDuration);
+
+      formData.append('return',)
+      if (carDetails.carReadingImage) {
+        formData.append('carReadingImage', {
+          uri: carDetails.carReadingImage.uri,
+          name: carDetails.carReadingImage.name,
+          type: 'image/jpeg',
+        });
+      }
 
 
+      // Send data to backend
+
+      const response = await axios.post(
+        `https://${DOMAIN}/Car/assign_car_to_car/`,
+        formData,
+        {
+          headers: {'Content-Type': 'multipart/form-data'},
+        },
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        Alert.alert(
+          'Car Rental Confirmation',
+          `Given the car ${selectedCar} to the user.`,
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('CarHome'),
+            },
+          ],
+        );
+      } else {
+        throw new Error('Failed to save car rental details');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'An error occurred. Please try again later.');
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>

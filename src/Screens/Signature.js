@@ -15,7 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const Signature = () => {
   const signRef = useRef(); // Create a ref using the useRef hook
   const route = useRoute();
-  const {phoneNumber, EV, userName,car} = route.params;
+  const {phoneNumber, EV, userName, car} = route.params;
 
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
@@ -73,21 +73,12 @@ const Signature = () => {
           if (responseJson.Error) {
             Alert.alert('Error', responseJson.Error);
           } else if (responseJson.message) {
-            if (car){
-              navigation.navigate('EmergencyCar', {
-                phoneNumber: phoneNumber,
-                EV: EV,
-                userName: userName,
-              });
-            }
-            else{
-              navigation.navigate('Emergency', {
-                phoneNumber: phoneNumber,
-                EV: EV,
-                userName: userName,
-              });
-            }
-           
+            navigation.navigate('Emergency', {
+              phoneNumber: phoneNumber,
+              EV: EV,
+              userName: userName,
+              car:car
+            });
           }
           setIsLoading(false);
         }, 500);
@@ -115,7 +106,6 @@ const Signature = () => {
         justifyContent: 'center',
         backgroundColor: '#feb101',
       }}>
-
       <View style={{height: 350}}>
         <SignatureCapture
           style={styles.signature}
@@ -133,10 +123,10 @@ const Signature = () => {
         />
       </View>
       {isLoading && (
-            <View style={styles.loader}>
-              <ActivityIndicator size="large" color="#000000" />
-            </View>
-          )}
+        <View style={styles.loader}>
+          <ActivityIndicator size="large" color="#000000" />
+        </View>
+      )}
       <View
         style={{
           flexDirection: 'row',

@@ -28,7 +28,7 @@ const Emergency = () => {
   const [isFocus, setIsFocus] = useState(false);
   const route = useRoute();
   const navigation = useNavigation();
-  const {phoneNumber, EV, userName} = route.params;
+  const {phoneNumber, EV, userName,car} = route.params;
 
   const relationshipData = [
     {label: 'Brother', value: 'Brother'},
@@ -120,11 +120,18 @@ const Emergency = () => {
         }
 
         if (response.ok) {
-          navigation.navigate('VehicleDetails', {
-            phoneNumber: phoneNumber,
-            EV: EV,
-            userName: userName,
-          });
+          if (car){
+            navigation.navigate('CarDetail', {
+              phoneNumber: phoneNumber,
+            });
+          }else{
+            navigation.navigate('VehicleDetails', {
+              phoneNumber: phoneNumber,
+              EV: EV,
+              userName: userName,
+            });
+          }
+         
           alert('Contacts updated successfully!');
         }
 

@@ -743,16 +743,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     height: 450,
   },
-  input: {
-    flex: 1,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    color: 'black',
-  },
+
 
   checkboxContainer: {
     flexDirection: 'row',
@@ -809,6 +800,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
+  },
+  input: {
+    flex: 1,
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    color: 'black',
   },
   halfInput: {
     flex: 1,
