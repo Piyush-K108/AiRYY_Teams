@@ -717,14 +717,14 @@ const CarCustomerDetail = () => {
             placeholder="First Name"
             placeholderTextColor="#000"
             value={ALTFirstName}
-            onChangeText={text => setFirstName(text)}
+            onChangeText={text => setALTFirstName(text)}
             style={[styles.input, styles.halfInput]}
           />
           <TextInput
             placeholder="Last Name"
             placeholderTextColor="#000"
             value={ALTLastName}
-            onChangeText={text => setLastName(text)}
+            onChangeText={text => setALTLastName(text)}
             style={[styles.input, styles.halfInput]}
           />
         </View>

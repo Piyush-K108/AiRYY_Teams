@@ -35,14 +35,14 @@ const Navigation = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         {loggedIn ? (
           <>
-          <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
-          <Stack.Screen name="DepositeDetail" component={DepositeDetail} />
+            <Stack.Screen name="CarDetail" component={CarDetail} />
             <Stack.Screen
               name="CarDepositeDetail"
               component={CarDepositeDetail}
             />
+            <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
+            <Stack.Screen name="DepositeDetail" component={DepositeDetail} />
             <Stack.Screen name="BikeDoc" component={BikeDoc} />
-            <Stack.Screen name="CarDetail" component={CarDetail} />
             <Stack.Screen
               name="CarCustomerDetail"
               component={CarCustomerDetail}

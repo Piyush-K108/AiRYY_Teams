@@ -14,6 +14,7 @@ import {
   ScrollView,
   Dimensions,
 } from 'react-native';
+import opencamera from '../../../components/opencamera';
 import RNPickerSelect from 'react-native-picker-select';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {launchCamera} from 'react-native-image-picker';
@@ -38,6 +39,7 @@ const CarDetail = () => {
   const {width, height} = Dimensions.get('window');
   const navigation = useNavigation();
   const [BikePicture, setBikePicture] = useState(null);
+
   const [cars, setCars] = useState([]);
   const [selectedCar, setSelectedCar] = useState('');
   const [carDetails, setCarDetails] = useState({
@@ -78,12 +80,46 @@ const CarDetail = () => {
 
     setAmount(cost);
   };
+  const [TimeTakenerror, setTimeTakenerror] = useState('');
+  const validateFields = () => {
+    let isValid = true;
+
+    if (!TimeTaken) {
+      setTimeTakenerror(`Please enter expected ${TimeTakenUnit}`);
+
+      isValid = false;
+    } else {
+      setTimeTakenerror('');
+    }
+
+    if (!selectedImageBikeReading) {
+      setBikeReadingError('Please upload Bike Reading Picture');
+      isValid = false;
+    } else {
+      setBikeReadingError('');
+    }
+
+    if (!BikePicture) {
+      setBikePictureError('Please upload Bike Condition Picture');
+      isValid = false;
+    } else {
+      setBikePictureError('');
+    }
+    if (!Bikeid) {
+      setBikeiderror('Please choose BikeID');
+      isValid = false;
+    } else {
+      setBikeiderror('');
+    }
+
+    return isValid;
+  };
   const calculateValue = () => {
     let timeInHours = parseFloat(TimeTaken); // Ensure TimeTaken is a valid number
-   
+
     // Handle case where TimeTaken is invalid or not a number
     if (isNaN(timeInHours)) {
-      return 0; 
+      return 0;
     }
 
     // Convert days or months to hours
@@ -145,7 +181,7 @@ const CarDetail = () => {
     }
   };
 
-  const openCamera = () => {
+  const openCamera2 = () => {
     launchCamera({}, response => {
       if (response.assets) {
         const imageUri = response.assets[0].uri;
@@ -159,7 +195,28 @@ const CarDetail = () => {
     });
   };
 
+  const handleBikePicturePicker = async () => {
+    try {
+      const result = await opencamera(phoneNumber, '_Adhar_Card.jpg');
+      if (result) {
+        setBikePicture(result.path);
+        setBikePictureError('');
+      } else {
+        Alert.alert('Error', 'Failed to capture Image');
+      }
+    } catch (error) {
+      console.log('Camera error: ', error);
+      Alert.alert(
+        'Error',
+        'An unexpected error occurred while capturing the image.',
+      );
+    }
+  };
   const handleSubmit = async () => {
+    if (!validateFields()) {
+      Alert.alert('Error', 'Please fill all the required fields.');
+      return;
+    }
     // Validate required fields
     if (!selectedCar || !rentalType || !TimeTaken || !phoneNumber) {
       Alert.alert('Error', 'Please fill all the required fields.');
@@ -310,7 +367,7 @@ const CarDetail = () => {
           />
 
           <View style={styles.uploadBtnContainer}>
-            <TouchableOpacity style={styles.button} onPress={openCamera}>
+            <TouchableOpacity style={styles.button} onPress={openCamera2}>
               <Text style={styles.buttonText}>Capture Car Reading</Text>
               <Ionicons
                 name="cloud-upload-outline"
@@ -330,12 +387,25 @@ const CarDetail = () => {
             )}
           </View>
         </View>
-        {BikePicture && (
+        <View style={styles.carSelectionContainer}>
+          {BikePictureError ? (
+            <Text style={styles.errorText}>{BikePictureError}</Text>
+          ) : null}
+
+          <TouchableOpacity
+            style={[styles.inputContainer, styles.documentPicker]}
+            onPress={handleBikePicturePicker}>
+            <Text style={styles.uploadText}>
+              Click to Upload Bike Condition.
+            </Text>
+          </TouchableOpacity>
+          {BikePicture && (
             <View style={styles.imageContainer}>
               <Image source={{uri: BikePicture}} style={styles.image} />
               <Text style={styles.imageText}>Bike Condition pic</Text>
             </View>
           )}
+        </View>
 
         {/* Rental Type Section */}
         <View style={styles.carSelectionContainer}>
@@ -459,6 +529,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  inputContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    padding: 20,
+    width: '100%',
+  },
+  documentPicker: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    borderRadius: 5,
+    padding: 10,
+    color: 'black',
+  },
+
+  imageContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    padding: 20,
+    width: '100%',
+  },
+  image: {
+    width: 360,
+    height: 180,
+    borderRadius: 10,
+  },
+  imageText: {
+    color: '#228B22',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    marginTop: 10,
+  },
   carSelectionContainer: {
     backgroundColor: '#fff',
     padding: 30,
@@ -483,6 +584,13 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 10,
     backgroundColor: '#fff',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
+    marginLeft: 5,
+    fontWeight: 'bold',
   },
   button: {
     flexDirection: 'row',
