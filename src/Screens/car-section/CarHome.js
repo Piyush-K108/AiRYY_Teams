@@ -114,7 +114,7 @@ const CarRent = () => {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              navigation.navigate('CarCustomerDetail', {
+              navigation.navigate('CarBill', {
                 car: true,
               });
             }}>

@@ -117,11 +117,18 @@ const DrawerNavigator = () => {
             />
           ),
           drawerItemStyle: {textAlign: 'left'}, // Align text to the left
+          headerStyle: {
+            backgroundColor: '#feb101',
+            elevation: 0, // For Android (removes shadow)
+            shadowOpacity: 0, // For iOS (removes shadow opacity)
+            shadowColor: 'transparent', // For iOS (makes shadow color transparent)
+            shadowOffset: {height: 0, width: 0}, // Removes shadow offset
+            shadowRadius: 0, // Removes shadow radius
+          },
           headerRight: () => (
             <TouchableOpacity
               style={styles.rentCarButton}
               onPress={() => navigation.navigate('CarHome')}>
-              {/* <Text style={styles.rentCarButtonText}>Rent Car</Text> */}
               <Ionicons name={'car-sport'} size={24} color={'#000'} />
             </TouchableOpacity>
           ),
