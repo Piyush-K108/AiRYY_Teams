@@ -35,22 +35,23 @@ const Navigation = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         {loggedIn ? (
           <>
+          <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
+          <Stack.Screen name="DepositeDetail" component={DepositeDetail} />
+            <Stack.Screen
+              name="CarDepositeDetail"
+              component={CarDepositeDetail}
+            />
+            <Stack.Screen name="BikeDoc" component={BikeDoc} />
+            <Stack.Screen name="CarDetail" component={CarDetail} />
             <Stack.Screen
               name="CarCustomerDetail"
               component={CarCustomerDetail}
             />
-            <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
 
             <Stack.Screen name="Offers" component={Offers} />
             <Stack.Screen name="CustomerDetails" component={CustomerDetails} />
             <Stack.Screen name="CarHome" component={CarHome} />
             <Stack.Screen name="Emergency" component={Emergency} />
-            <Stack.Screen name="BikeDoc" component={BikeDoc} />
-            <Stack.Screen
-              name="CarDepositeDetail"
-              component={CarDepositeDetail}
-            />
-            <Stack.Screen name="CarDetail" component={CarDetail} />
             <Stack.Screen name="UserBill" component={UserBill} />
             <Stack.Screen name="Scheduled" component={Scheduled} />
             <Stack.Screen name="Servicing" component={Servicing} />
@@ -79,7 +80,6 @@ const Navigation = () => {
               }}
             />
             <Stack.Screen name="VehicleDetails" component={VehicleDetails} />
-            <Stack.Screen name="DepositeDetail" component={DepositeDetail} />
           </>
         ) : (
           <Stack.Screen name="Login" component={Login} />

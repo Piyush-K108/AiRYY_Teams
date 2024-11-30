@@ -10,6 +10,7 @@ import {
   Alert,
   StyleSheet,
   Image,
+  Animated,
   ScrollView,
   Dimensions,
 } from 'react-native';
@@ -17,6 +18,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {launchCamera} from 'react-native-image-picker';
 import axios from 'axios';
+import {useSelector} from 'react-redux';
 import {useRoute} from '@react-navigation/core';
 const CustomCheckBox = ({value, onValueChange}) => {
   return (
@@ -35,24 +37,83 @@ const CustomCheckBox = ({value, onValueChange}) => {
 const CarDetail = () => {
   const {width, height} = Dimensions.get('window');
   const navigation = useNavigation();
+  const [BikePicture, setBikePicture] = useState(null);
   const [cars, setCars] = useState([]);
   const [selectedCar, setSelectedCar] = useState('');
   const [carDetails, setCarDetails] = useState({
     fuelType: '',
     KM_Now: '',
     carReadingImage: null,
+    Pic_before: null,
   });
+  const [TimeTaken, setTimeTaken] = useState('');
+
   const route = useRoute();
-  const {phoneNumber} = route.params;
+  const {phoneNumber} = '7024949888';
   const [rentalType, setRentalType] = useState('');
-  const [rentalDuration, setRentalDuration] = useState('');
+
   const [advancePayment, setAdvancePayment] = useState(false);
   const [depositPayment, setDepositPayment] = useState(false);
+
   const [advanceUPI, setAdvanceUPI] = useState('');
   const [advanceCash, setAdvanceCash] = useState('');
   const [depositUPI, setDepositUPI] = useState('');
-
   const [depositCash, setDepositCash] = useState('');
+
+  const phone = useSelector(state => state.counter.phone);
+
+  const [calculatedValue] = useState(new Animated.Value(0));
+  const [Amount, setAmount] = useState(0);
+  const [BikePictureError, setBikePictureError] = useState('');
+  const [BikeReadingError, setBikeReadingError] = useState('');
+  const [Estimated_Amount, setEstimatedCost] = useState('');
+
+  const handalAmount = () => {
+    const days = Math.floor(TimeTaken / 24);
+    const remainingHours = TimeTaken % 24;
+    const cost =
+      days * 1000 +
+      Math.floor(remainingHours / 12) * 500 +
+      (remainingHours % 12) * cars.ratePerHour;
+
+    setAmount(cost);
+  };
+  const calculateValue = () => {
+    let timeInHours = parseFloat(TimeTaken); // Ensure TimeTaken is a valid number
+   
+    // Handle case where TimeTaken is invalid or not a number
+    if (isNaN(timeInHours)) {
+      return 0; 
+    }
+
+    // Convert days or months to hours
+    if (rentalType === 'days') {
+      timeInHours *= 24;
+    } else if (rentalType === 'months') {
+      timeInHours *= 24 * 30; // Assuming 1 month = 30 days
+    }
+
+    const days = Math.floor(timeInHours / 24);
+    const remainingHours = timeInHours % 24;
+    const cost =
+      days * 700 +
+      Math.floor(remainingHours / 12) * 400 +
+      (remainingHours % 12) * selectedCar.ratePerHour;
+    setEstimatedCost(cost);
+    return cost;
+  };
+
+  useEffect(() => {
+    const newValue = calculateValue();
+
+    if (!isNaN(newValue)) {
+      Animated.timing(calculatedValue, {
+        toValue: newValue,
+        duration: 500,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [TimeTaken, rentalType]);
 
   useEffect(() => {
     const fetchCarData = async () => {
@@ -75,7 +136,7 @@ const CarDetail = () => {
 
   const handleCarSelect = car => {
     if (car) {
-      setSelectedCar(car.modelName || 'Unknown Model');
+      setSelectedCar(car);
       setCarDetails({
         fuelType: car.fuelType || '',
         KM_Now: car.KM_Now || 0,
@@ -100,34 +161,55 @@ const CarDetail = () => {
 
   const handleSubmit = async () => {
     // Validate required fields
-    if (!selectedCar || !rentalType || !rentalDuration || !phoneNumber) {
+    if (!selectedCar || !rentalType || !TimeTaken || !phoneNumber) {
       Alert.alert('Error', 'Please fill all the required fields.');
       return;
+    }
+    let timeInHours = parseFloat(TimeTaken);
+    if (rentalType === 'days') {
+      timeInHours *= 24;
+    } else if (rentalType === 'months') {
+      timeInHours *= 24 * 30; // Assuming 1 month = 30 days
     }
 
     try {
       // Prepare data payload
+      const totalReturnAmount = parseInt(depositPayment) + parseInt(depositUPI);
       const formData = new FormData();
-      formData.append('carid', selectedCar.carid);
-      formData.append('fuelType', carDetails.fuelType);
-      formData.append('KM_Now', carDetails.KM_Now);
-      formData.append('rentalType', rentalType);
-      formData.append('rentalDuration', rentalDuration);
+      formData.append(
+        'return',
+        `cash = ${parseInt(depositCash)} upi = ${parseInt(
+          depositUPI,
+        )} total = ${totalReturnAmount}`,
+      );
+      formData.append('staff', phone);
+      formData.append('Persnal', 0);
 
-      formData.append('return',)
+      formData.append('AdvancePayUPI', advanceUPI);
+      formData.append('AdvancePayCash', advanceCash);
+      formData.append('carid', selectedCar.carid);
+      if (BikePicture) {
+        const bikePictureData = {
+          uri: BikePicture,
+          type: 'image/jpeg',
+          name: `${phoneNumber}_Previous_Pic.jpg`,
+        };
+        formData.append('Pic_before', bikePictureData);
+      }
       if (carDetails.carReadingImage) {
-        formData.append('carReadingImage', {
+        formData.append('KM_Reading', {
           uri: carDetails.carReadingImage.uri,
           name: carDetails.carReadingImage.name,
           type: 'image/jpeg',
         });
       }
+      formData.append('TimeThought', TimeTaken);
+      formData.append('Estimated_Amount', Estimated_Amount);
 
-
-      // Send data to backend
+      //   // Send data to backend
 
       const response = await axios.post(
-        `https://${DOMAIN}/Car/assign_car_to_car/`,
+        `https://${DOMAIN}/Car/assign_car_to_car/z${phoneNumber}`,
         formData,
         {
           headers: {'Content-Type': 'multipart/form-data'},
@@ -137,7 +219,7 @@ const CarDetail = () => {
       if (response.status === 200 || response.status === 201) {
         Alert.alert(
           'Car Rental Confirmation',
-          `Given the car ${selectedCar} to the user.`,
+          `Given the car ${selectedCar.modelName} to the user.`,
           [
             {
               text: 'OK',
@@ -183,7 +265,7 @@ const CarDetail = () => {
             Car Detail
           </Text>
         </View>
-        {/* <View
+        <View
           style={{
             height: height * 0.2, // Use height based on the screen size
             width: width * 0.5,
@@ -196,11 +278,11 @@ const CarDetail = () => {
               width: width * 0.65, // Adjust LottieView width dynamically
               marginTop: -height * 0.05, // Adjust margin dynamically based on height
             }}
-            source={require('../../../assets/cardetail.json')}
+            source={require('../../../assets/carRental.json')}
             autoPlay
             loop
           />
-        </View> */}
+        </View>
 
         <View style={styles.carSelectionContainer}>
           <Text style={styles.sectionTitle}>Select Car</Text>
@@ -248,6 +330,12 @@ const CarDetail = () => {
             )}
           </View>
         </View>
+        {BikePicture && (
+            <View style={styles.imageContainer}>
+              <Image source={{uri: BikePicture}} style={styles.image} />
+              <Text style={styles.imageText}>Bike Condition pic</Text>
+            </View>
+          )}
 
         {/* Rental Type Section */}
         <View style={styles.carSelectionContainer}>
@@ -256,8 +344,8 @@ const CarDetail = () => {
             onValueChange={value => setRentalType(value)}
             items={[
               {label: 'Hourly', value: 'hour'},
-              {label: 'Daily', value: 'day'},
-              {label: 'Monthly', value: 'month'},
+              {label: 'Daily', value: 'days'},
+              {label: 'Monthly', value: 'months'},
             ]}
             placeholder={{label: 'Select Rental Type', value: null}}
             style={pickerSelectStyles}
@@ -267,18 +355,26 @@ const CarDetail = () => {
             <TextInput
               placeholder={`Enter ${
                 rentalType === 'hour'
-                  ? 'KM'
-                  : rentalType === 'day'
+                  ? 'Hours'
+                  : rentalType === 'da'
                   ? 'Days'
                   : 'Months'
               }`}
-              value={rentalDuration}
-              onChangeText={setRentalDuration}
+              value={TimeTaken}
+              onChangeText={setTimeTaken}
               style={styles.input}
               keyboardType="numeric"
               placeholderTextColor="#888"
             />
           )}
+        </View>
+        <View style={styles.carSelectionContainer}>
+          <View style={styles.animatedContainer}>
+            <Animated.Text
+              style={[styles.calculatedValue, {opacity: calculatedValue}]}>
+              <Text>₹</Text> {calculateValue()}
+            </Animated.Text>
+          </View>
         </View>
 
         {/* Advance Payment Section */}
@@ -311,6 +407,7 @@ const CarDetail = () => {
         </View>
 
         {/* Deposit Payment Section */}
+
         <View style={styles.carSelectionContainer}>
           <Text style={styles.sectionTitle}>Deposit Payment</Text>
           <CustomCheckBox
@@ -444,6 +541,25 @@ const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 1,
     textTransform: 'uppercase',
+  },
+  calculatedValue: {
+    fontSize: 20,
+    color: 'green',
+    alignSelf: 'center',
+  },
+  animatedContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
+    width: '100%',
+    marginTop: 12,
+    marginBottom: 12,
+    backgroundColor: '#ffffff',
+    shadowColor: 'black',
+    shadowOpacity: 0.5,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 4,
+    elevation: 6,
   },
 });
 

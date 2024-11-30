@@ -1,413 +1,472 @@
 import React, {useState, useEffect} from 'react';
-import {DOMAIN} from '@env';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import LottieView from 'lottie-react-native';
 import {
   View,
   Text,
-  TextInput,
-  Alert,
-  ScrollView,
   TouchableOpacity,
+  TextInput,
   StyleSheet,
+  ScrollView,
+  ImageBackground,
   Image,
-  SafeAreaView,
-  Dimensions
+  Alert,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import LottieView from 'lottie-react-native';
+import {DOMAIN} from '@env';
+import {Dropdown} from 'react-native-element-dropdown';
+import opencamera from '../../../components/opencamera';
 import {useNavigation} from '@react-navigation/native';
-import RNPickerSelect from 'react-native-picker-select';
-import {launchCamera} from 'react-native-image-picker';
-import axios from 'axios';
+import {useRoute} from '@react-navigation/core';
+import { useSelector } from 'react-redux';
 
-// Custom Checkbox Component
-const CustomCheckBox = ({value, onValueChange}) => {
-  return (
-    <TouchableOpacity
-      onPress={() => onValueChange(!value)}
-      style={styles.checkboxContainer}>
-      <Ionicons
-        name={value ? 'checkbox' : 'square-outline'}
-        size={24}
-        color="#eab308"
-      />
-    </TouchableOpacity>
-  );
-};
+import {launchCamera} from 'react-native-image-picker';
+import RNFS from 'react-native-fs';
+
+const Checkbox = ({label, value, onPress}) => (
+  <TouchableOpacity style={styles.checkboxContainer} onPress={onPress}>
+    <View
+      style={[
+        styles.checkbox,
+        {backgroundColor: value ? '#feb101' : 'transparent'},
+      ]}>
+      {value && <Text style={styles.checkmark}>✓</Text>}
+    </View>
+    <Text style={{color: 'black'}}>{label}</Text>
+  </TouchableOpacity>
+);
 
 const CarDepositeDetail = () => {
-   const {width, height} = Dimensions.get('window');
-  const [cars, setCars] = useState([]);
-  const [selectedCar, setSelectedCar] = useState(null);
-  const [kmNow, setKmNow] = useState('');
-  const [isGoodCondition, setIsGoodCondition] = useState(false);
-  const [isNotGoodCondition, setIsNotGoodCondition] = useState(false);
-  const [carReading, setCarReading] = useState(null);
-  const [depositeKm, setDepositeKm] = useState('');
-  const navigation = useNavigation();
+  const [CarCondition, setCarCondition] = useState('good');
+  const [refreshing, setRefreshing] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [Kilometer, setKilometer] = useState('');
+  const route = useRoute();
+    
 
-  // Fetch car data
   useEffect(() => {
-    axios
-      .get(`https://${DOMAIN}/Car/car-info/`)
-      .then(response => {
-        const carOptions = response.data
-          .filter(car => car && car.modelName)
-          .map(car => ({
-            label: car.modelName || 'Unknown Model',
-            value: car,
-          }));
-        setCars(carOptions);
+    if (route.params && route.params.bid) {
+      setcarid(route.params.bid);
+    } else {
+      setcarid('');
+    }
+  }, [route.params, CarData, navigation]);
+  const [carid, setcarid] = useState('');
+  const phone = useSelector(state => state.counter.phone);
+  const [cariderror, setcariderror] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
+  const navigation = useNavigation();
+  const [kilometerError, setKilometerError] = useState('');
+  const [imageError, setImageError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [value, setValue] = useState(null);
+  const [CarData, setCarData] = useState([]);
+  const focusHandler = () => {
+    console.log("API called");
+    fetch(`https://${DOMAIN}/Car/caridsreturn/`, {
+      method: 'GET',
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        setCarData(responseJson);
+        if (responseJson.length > 0) {
+          setValue(responseJson[0].value);
+        }
       })
       .catch(error => {
-        console.error('Error fetching car data:', error);
+        console.log(error);
       });
+  };
+  
+  useFocusEffect(
+    React.useCallback(() => {
+      focusHandler();
+    }, [])
+  );
+  
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    focusHandler(); 
+    setRefreshing(false); 
   }, []);
 
-  const handleSubmit = () => {
-    if (depositeKm) {
-      Alert.alert(
-        'Car Deposit Confirmation',
-        'The car has been deassigned successfully.',
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('CarHome'),
-          },
-        ],
-      );
-    } else {
-      Alert.alert(
-        'Error',
-        'Please fill the kilometers at the time of deposit.',
-      );
-    }
+
+  const handleCarConditionChange = condition => {
+    setCarCondition(condition);
   };
 
-  const handleCarSelect = car => {
-    if (!car) return;
-    if (car.modelName && car.KM_Now) {
-      setSelectedCar(car.modelName);
-      setKmNow(car.KM_Now);
-    } else {
-      Alert.alert('Error', 'Invalid car data selected. Please try again.');
-    }
-  };
 
-  const openCamera = () => {
-    const options = {
-      mediaType: 'photo',
-      cameraType: 'back',
-      saveToPhotos: true,
-    };
-
-    launchCamera(options, response => {
-      if (response.didCancel) {
-        console.log('User cancelled camera picker');
-      } else if (response.errorCode) {
-        console.log('Camera Error: ', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        setCarReading(response.assets[0]);
+  const handleImageSelect2 = async () => {
+    try {
+      const result = await opencamera(phoneNumber, '_Adhar_Card.jpg');
+      if (result) {
+        setSelectedImage(result.path);
+        setImageError('');
+      } else {
+        Alert.alert('Error', 'Failed to capture Image');
       }
-    });
-  };
-
-  const handleConditionChange = condition => {
-    if (condition === 'good') {
-      setIsGoodCondition(true);
-      setIsNotGoodCondition(false);
-    } else if (condition === 'notGood') {
-      setIsGoodCondition(false);
-      setIsNotGoodCondition(true);
+    } catch (error) {
+      console.log('Camera error: ', error);
+      Alert.alert('Error', 'An unexpected error occurred while capturing the image.');
     }
   };
+
+  // Function to create FormData object
+  const createImageFormData = (imagePath, phoneNumber) => {
+    const formData = new FormData();
+    formData.append('Condition', CarCondition);
+    formData.append('KM_Now', Kilometer);
+    formData.append('carid', carid);
+    formData.append('staff', phone);
+
+    if (imagePath) {
+      formData.append('Pic_after', {
+        uri: imagePath,
+        type: 'image/jpeg',
+        name: `${phoneNumber}_After_Pic.jpg`,
+      });
+    }
+
+    return formData;
+  };
+
+  const handleDeposit = () => {
+    if (!validateFields()) {
+      Alert.alert('Error', 'Fill All The Fields Again');
+      setSelectedImage(null);
+      return;
+    }
+
+    setIsLoading(true);
+
+    const formData = createImageFormData(selectedImage, phoneNumber);
+
+    fetch(`https://${DOMAIN}/Car/deassign_car/`, {
+      method: 'PUT',
+      body: formData,
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        setIsLoading(false);
+        if (responseJson.message) {
+          Alert.alert('Done', `${responseJson.message}`, [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.navigate('Offers', {
+                  b_id: null,
+                  carid: carid,
+                  bikeCondition: "",
+                  CarCondition: CarCondition,
+                });
+              },
+            },
+          ]);
+        } else {
+          handleResponseErrors(responseJson);
+        }
+      })
+      .catch(error => {
+        console.error('Submission error: ', error);
+        Alert.alert('Error', 'Failed to submit, please try again.');
+        setIsLoading(false);
+      });
+  };
+
+  const handleResponseErrors = (responseJson) => {
+    if (responseJson.Error) {
+      Alert.alert('Error', responseJson.Error);
+    } else if (responseJson.Error2) {
+      Alert.alert('Error', responseJson.Error2);
+      setSelectedImage(null);
+    } else {
+      Alert.alert('Error', 'An unknown error occurred.');
+    }
+  };
+
+  const validateFields = () => {
+    let isValid = true;
+
+    if (!Kilometer) {
+      setKilometerError('Please enter kilometers');
+      isValid = false;
+    } else {
+      setKilometerError('');
+    }
+
+    if (!selectedImage) {
+      setImageError('Please upload Car reading image');
+      isValid = false;
+    } else {
+      setImageError('');
+    }
+
+    if (!carid) {
+      setcariderror('Please choose carID');
+      isValid = false;
+    } else {
+      setcariderror('');
+    }
+
+    return isValid;
+  };
+  
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Deposite Car</Text>
-          </View>
-          {/* <View
-            style={{
-              height: height * 0.2, // Use height based on the screen size
-              width: width * 0.5,
-              position: 'relative',
-              top: 70,
-            }}>
-            <LottieView
-              style={{
-                height: height * 0.3, // Adjust LottieView height dynamically
-                width: width * 0.65, // Adjust LottieView width dynamically
-                marginTop: -height * 0.05, // Adjust margin dynamically based on height
+    <View style={styles.container}>
+      <View style={styles.Vcontainer}>
+        <LottieView
+          style={styles.video}
+          source={require('../../../assets/DepositeBikeAnime.json')} // Replace with your animation file path
+          autoPlay
+          loop
+        />
+      </View>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        style={styles.Scroll}>
+        <View style={styles.content}>
+          <View style={styles.inputContainer}>
+            {cariderror ? (
+              <Text style={styles.errorText}>{cariderror}</Text>
+            ) : null}
+            <Dropdown
+              style={styles.dropdown}
+              placeholderStyle={styles.placeholderStyle}
+              selectedTextStyle={styles.selectedTextStyle}
+              data={CarData}
+              itemTextStyle={{color: '#000'}}
+              maxHeight={300}
+              labelField="label"
+              placeholder="Select Car ID"
+              placeholderTextColor="#000"
+              onChange={item => {
+                const selectedcarId = item.label.split(' -   ')[0];
+                setcarid(selectedcarId);
               }}
-              source={require('../../../assets/Cardeposite.json')}
-              autoPlay
-              loop
             />
-          </View> */}
-          <View style={styles.formSection}>
-            <View
-              style={{
-                borderWidth: 1,
-                padding: 40,
-                backgroundColor: '#fff',
-                margin: 30,
-                borderRadius: 30,
-                borderColor: '#e5e7eb',
-              }}>
-              <Text style={styles.sectionTitle}>Select Car</Text>
-              <RNPickerSelect
-                onValueChange={handleCarSelect}
-                items={cars}
-                placeholder={{label: 'Select a Car', value: null}}
-                value={selectedCar}
-                style={pickerSelectStyles}
-              />
-
-              <TextInput
-                placeholder="Current Km"
-                value={String(kmNow)}
-                editable={false}
-                style={styles.input}
-                placeholderTextColor="#888"
-              />
-            </View>
-            <View
-              style={{
-                backgroundColor: '#fff',
-                marginLeft: 30,
-                marginRight: 30,
-                borderWidth: 1,
-                borderColor: '#e5e7eb',
-                borderRadius: 30,
-                padding: 40,
-              }}>
-              <View style={styles.checkboxGroup}>
-                <Text style={styles.sectionTitle}>Condition</Text>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginTop: 15,
-                    justifyContent: 'space-between',
-                  }}>
-                  <View style={{flexDirection: 'row'}}>
-                    <Text style={styles.checkboxLabel}>Good</Text>
-                    <CustomCheckBox
-                      value={isGoodCondition}
-                      onValueChange={() => handleConditionChange('good')}
-                    />
-                  </View>
-                  <View style={{flexDirection: 'row'}}>
-                    <Text style={styles.checkboxLabel}>Not Good</Text>
-                    <CustomCheckBox
-                      value={isNotGoodCondition}
-                      onValueChange={() => handleConditionChange('notGood')}
-                    />
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.uploadBtnContainer}>
-                <TouchableOpacity style={styles.button} onPress={openCamera}>
-                  <Text style={styles.buttonText}>Capture Car Reading</Text>
-                  <Ionicons
-                    name="cloud-upload-outline"
-                    size={20}
-                    color="#000"
-                    style={{marginLeft: 10}}
-                  />
-                </TouchableOpacity>
-                {carReading && (
-                  <View style={styles.imagePreviewContainer}>
-                    <Text style={styles.imageLabel}>Uploaded</Text>
-                    <Image
-                      source={{uri: carReading.uri}}
-                      style={styles.uploadedImage}
-                    />
-                  </View>
-                )}
-              </View>
-            </View>
-            <View style={{marginLeft: 30, marginRight: 30, marginTop: 30}}>
-              <TextInput
-                style={styles.input}
-                placeholderTextColor="#000"
-                keyboardType="numeric"
-                placeholder="Enter Km at Deposit"
-                value={depositeKm}
-                onChangeText={setDepositeKm}
-              />
-            </View>
-
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginBottom: 40,
-              }}>
-              <TouchableOpacity
-                style={styles.submitButton}
-                onPress={handleSubmit}>
-                <Text style={styles.submitButtonText}>Submit</Text>
-              </TouchableOpacity>
-            </View>
           </View>
+          <View style={styles.checkboxContainer}>
+            <Text style={styles.label}>Car Condition:</Text>
+            <Checkbox
+              label="Good"
+              value={CarCondition === 'good'}
+              onPress={() => handleCarConditionChange('good')}
+            />
+            <Checkbox
+              label="Not Good"
+              value={CarCondition === 'notgood'}
+              onPress={() => handleCarConditionChange('notgood')}
+            />
+          </View>
+          {imageError ? (
+            <Text style={styles.errorText}>{imageError}</Text>
+          ) : null}
+          <TouchableOpacity
+            style={styles.cameraButton}
+            onPress={handleImageSelect2}>
+            <Text style={styles.cameraButtonText}>
+              Upload Car Reading Image
+            </Text>
+          </TouchableOpacity>
+
+          {selectedImage && (
+            <View style={styles.imageContainer}>
+              <Image source={{uri: selectedImage}} style={styles.image} />
+              <Text style={{color: 'green', marginTop: 5, fontWeight: '600'}}>
+                Car Reading Deposit time
+              </Text>
+            </View>
+          )}
+
+          <Text style={styles.label}>Kilometers Now:</Text>
+          <TextInput
+            style={styles.input2}
+            placeholder="Enter Kilometer"
+            placeholderTextColor="#000"
+            value={Kilometer}
+            onChangeText={text => setKilometer(text)}
+            keyboardType="numeric"
+          />
+          {kilometerError ? (
+            <Text style={styles.errorText}>{kilometerError}</Text>
+          ) : null}
+
+          <TouchableOpacity
+            style={styles.depositButton}
+            onPress={handleDeposit}>
+            <Text style={styles.depositButtonText}>Submit</Text>
+          </TouchableOpacity>
+          {isLoading && (
+            <View style={styles.loader}>
+              <ActivityIndicator size="large" color="#000000" />
+            </View>
+          )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    color: 'black',
-    backgroundColor: 'white',
-    marginBottom: 20,
-  },
-  inputAndroid: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    color: 'black',
-    backgroundColor: 'white',
-    marginBottom: 20,
-  },
-});
-
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fefce8',
+  loader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
-  scrollContainer: {
-    flexGrow: 1,
-    backgroundColor: '#fefce8',
-    padding: 20,
+  dropdown: {
+    height: 50,
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: 'black',
+    marginBottom: 10,
+    marginTop: 12,
+    color: '#000',
+    paddingLeft: 7,
+    paddingRight: 15,
+  },
+
+  placeholderStyle: {
+    fontSize: 15,
+    color: '#000',
+  },
+  selectedTextStyle: {
+    fontSize: 15,
+    color: '#000',
+  },
+  Vcontainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 200,
+    width: 200,
+    marginTop: 170,
+    marginBottom: 30,
+  },
+  video: {
+    width: 250,
+    height: 230,
   },
   container: {
     flex: 1,
-    backgroundColor: '#fefce8',
-  },
-  header: {
-    backgroundColor: '#fefce8',
-    borderColor: '#d1d5db',
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    justifyContent: 'center',
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    margin: 20,
+    width: '100%',
     alignItems: 'center',
-    marginBottom: 20,
-    borderRadius: 20,
+    justifyContent: 'center',
+    backgroundColor: '#feb101',
   },
-  headerText: {
-    color: '#000',
-    fontWeight: 'bold',
-    fontSize: 25,
+  Scroll: {
+    marginTop: 30,
+    width: '100%',
   },
-  formSection: {
-    // backgroundColor: '#fff',
-    // borderRadius: 10,
-    // padding: 20,
-    // margin: 18,
-    // borderWidth: 1,
-    // borderColor: '#d1d5db',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    color: '#000',
-    padding: 10,
-    marginBottom: 20,
+  content: {
     backgroundColor: '#fff',
-  },
-  checkboxGroup: {
-    // backgroundColor: '#fff',
-
-    flexDirection: 'column',
-    marginBottom: 20,
+    padding: 20,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    width: '100%',
+    shadowColor: 'black',
+    shadowOpacity: 0.5,
+    shadowOffset: {width: 0, height: 2},
+    shadowRadius: 4,
+    elevation: 6,
+    marginTop: 120,
+    justifyContent: 'center',
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 20,
+    marginLeft: 5,
   },
-  checkboxLabel: {
-    fontSize: 16,
-    color: '#000',
-    marginRight: 12,
-  },
-  uploadBtnContainer: {
-    flexDirection: 'Column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-
-    marginTop: 20,
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#fbbf24',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+  checkbox: {
+    width: 20,
+    height: 20,
     borderRadius: 5,
-    marginTop: 10,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  checkmark: {
+    color: '#000',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 10,
+    color: 'black',
+  },
+  cameraButton: {
+    backgroundColor: '#feb101',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginBottom: 20,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  cameraButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  imageContainer: {
+    alignItems: 'center',
     marginBottom: 20,
   },
-  buttonText: {
-    color: '#000',
-    fontWeight: 'bold',
-    fontSize: 14,
+  image: {
+    width: 300,
+    height: 190,
+    borderRadius: 5,
   },
-  imagePreviewContainer: {
-    alignItems: 'center',
+  inputContainer: {
+    marginBottom: 20,
   },
-  uploadedImage: {
-    width: 180,
-    height: 90,
-    borderRadius: 10,
-    resizeMode: 'contain',
-
+  input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: 'gray',
+    color: '#000',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    height: 40,
+    marginTop: 20,
   },
-  imageLabel: {
-    color: '#333',
-    fontSize: 12,
-    marginBottom: 8,
+  input2: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    marginBottom: 15,
+    color: '#000',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    height: 40,
+    marginTop: 20,
   },
-  submitButton: {
-    backgroundColor: '#fbbf24',
-    paddingHorizontal: 120,
-    paddingVertical: 12,
-    borderRadius: 10,
+  depositButton: {
+    backgroundColor: '#feb101',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 25,
   },
-  submitButtonText: {
+  depositButtonText: {
+    color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center',
-    letterSpacing:1 ,
+    letterSpacing: 1,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
+    marginLeft: 5,
   },
 });
 

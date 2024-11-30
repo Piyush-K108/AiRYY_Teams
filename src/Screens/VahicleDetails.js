@@ -83,7 +83,6 @@ const VehicleDetails = () => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);

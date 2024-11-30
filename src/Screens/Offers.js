@@ -26,7 +26,7 @@ const Checkbox = ({label, value, onPress}) => {
 const Offers = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const {b_id, bikeCondition} = route.params;
+  const {b_id, carid, bikeCondition, carCondition} = route.params;
   const [Yes, setYes] = useState(null);
   const [Clicked, setClicked] = useState(null);
 
@@ -56,10 +56,17 @@ const Offers = () => {
     }
 
     try {
-      const response = await axios.get(
-        `https://${DOMAIN}/User/number/${b_id}/`,
-        {},
-      );
+      if (carid) {
+        const response = await axios.get(
+          `https://${DOMAIN}/User/number/${carid}/`,
+          {car: true},
+        );
+      } else {
+        const response = await axios.get(
+          `https://${DOMAIN}/User/number/${b_id}/`,
+          {},
+        );
+      }
 
       const phone = response.data;
       console.log(phone);
@@ -74,26 +81,48 @@ const Offers = () => {
           {
             text: 'OK',
             onPress: () => {
-              navigation.navigate('UserBill', {
-                b_id: b_id,
-                bikeCondition: bikeCondition,
-              });
-              shouldNavigate = true;
+              if (carid) {
+                navigation.navigate('CarUserBill', {
+                  b_id: carid,
+                  carCondition: carCondition,
+                });
+                shouldNavigate = true;
+              } else {
+                navigation.navigate('UserBill', {
+                  b_id: b_id,
+                  bikeCondition: bikeCondition,
+                });
+                shouldNavigate = true;
+              }
             },
           },
         ]);
+      } else {
+        if (carid) {
+          navigation.navigate('CarHome', {
+            b_id: carid,
+            carCondition: carCondition,
+          });
+        } else {
+          navigation.navigate('UserBill', {
+            b_id: b_id,
+            bikeCondition: bikeCondition,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error in navigateToOfferDetails:', error);
+      if (carid) {
+        navigation.navigate('CarHome', {
+          b_id: carid,
+          carCondition: carCondition,
+        });
       } else {
         navigation.navigate('UserBill', {
           b_id: b_id,
           bikeCondition: bikeCondition,
         });
       }
-    } catch (error) {
-      console.error('Error in navigateToOfferDetails:', error);
-      navigation.navigate('UserBill', {
-        b_id: b_id,
-        bikeCondition: bikeCondition,
-      });
     }
 
     setYes(null);
