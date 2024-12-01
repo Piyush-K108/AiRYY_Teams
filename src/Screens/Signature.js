@@ -15,7 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const Signature = () => {
   const signRef = useRef(); // Create a ref using the useRef hook
   const route = useRoute();
-  const {phoneNumber, EV, userName, car} = route.params;
+  const {phoneNumber,ALTphoneNumber, EV, userName, car} = route.params;
 
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
@@ -75,6 +75,7 @@ const Signature = () => {
           } else if (responseJson.message) {
             navigation.navigate('Emergency', {
               phoneNumber: phoneNumber,
+              AltphoneNumber: ALTphoneNumber,
               EV: EV,
               userName: userName,
               car:car

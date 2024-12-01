@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   ImageBackground,
 } from 'react-native';
-import {useState,useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 import {DOMAIN} from '@env';
 import {logout} from '../Redux/Counter/counterAction';
@@ -23,9 +23,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const Home = () => {
   const dispatch = useDispatch();
   const phone = useSelector(state => state.counter.phone);
-  if(!phone){
+  if (!phone) {
     console.log('====================================');
-    console.log("lohotu not phone");
+    console.log('lohotu not phone');
     console.log('====================================');
     dispatch(logout());
   }
@@ -52,31 +52,34 @@ const Home = () => {
 
   useEffect(() => {
     if (phone) {
-      fetchTeamData(); 
+      fetchTeamData();
     }
   }, [phone]);
 
   const navigation = useNavigation();
-
+  
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   return (
     <View style={{flex: 1, backgroundColor: '#ffff'}}>
       <View>
         <ScrollView>
-         
           <View style={styles.container}>
             <View style={styles.headercontainer}>
               <Text style={styles.title}>Renting Service</Text>
             </View>
-
             <View style={styles.Vcontainer}>
+              {!isVideoLoaded && (
+               null
+              )}
               <Video
                 source={require('../assets/Airyy.mp4')}
                 style={styles.video}
                 resizeMode="cover"
                 repeat
+                onLoad={() => setIsVideoLoaded(true)}
               />
             </View>
-
+            
             <View
               style={{
                 flex: 1,

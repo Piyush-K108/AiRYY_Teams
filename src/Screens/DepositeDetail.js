@@ -158,6 +158,7 @@ const DepositeDetail = () => {
                 navigation.navigate('Offers', {
                   b_id: Bikeid,
                   bikeCondition: bikeCondition,
+                  car:false
                 });
               },
             },

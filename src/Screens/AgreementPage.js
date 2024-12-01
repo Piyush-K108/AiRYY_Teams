@@ -31,7 +31,7 @@ const AgreementPage = () => {
   const [userData, setUserData] = useState({});
   const [agreed, setAgreed] = useState(false);
   const route = useRoute();
-  const {phoneNumber, EV, userName,car} = route.params;
+  const {phoneNumber,ALTphoneNumber, EV, userName,car} = route.params;
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -141,6 +141,7 @@ const AgreementPage = () => {
             onPress={() =>
               navigation.navigate('Signature', {
                 phoneNumber: phoneNumber,
+                ALTphoneNumber: ALTphoneNumber,
                 EV: EV,
                 userName: userName,
                 car:car

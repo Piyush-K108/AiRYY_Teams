@@ -17,7 +17,7 @@ import EmergencyContact from '../car-components/EmergencyContacts';
 import {useNavigation} from '@react-navigation/native';
 import {DOMAIN} from '@env';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import RNFS from 'react-native-fs';
+import Delete_Images from '../../../components/Delete_Images';
 import {useSelector} from 'react-redux';
 
 const CarCustomerDetail = () => {
@@ -421,6 +421,7 @@ const CarCustomerDetail = () => {
         } else if (User && User.Signature && !EmergencyCOntact) {
           navigation.navigate('Emergency', {
             phoneNumber: phoneNumber,
+            ALTphoneNumber: ALTphoneNumber,
             EV: true,
             userName: "",
             car:true
@@ -429,11 +430,13 @@ const CarCustomerDetail = () => {
           console.log("Signature and Emergency contact"); 
           navigation.navigate('CarDetail', {
             phoneNumber: phoneNumber,
+            ALTphoneNumber: ALTphoneNumber,
           });
         } else {
           console.log("NO Signature and no Emergency contact");
           navigation.navigate('AgreementPage', {
             phoneNumber: phoneNumber,
+            ALTphoneNumber: ALTphoneNumber,
             EV: true,
             userName: FirstName,
             car:true
@@ -445,6 +448,10 @@ const CarCustomerDetail = () => {
         Alert.alert(`${error}`, 'Try again!');
       })
       .finally(() => setIsLoading(false));
+      console.log("Called1");
+      Delete_Images(ALTLicense);
+      console.log("Called2");
+
   };
 
   const handleAddEmergencyContact = () => {

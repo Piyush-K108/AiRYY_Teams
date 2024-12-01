@@ -51,7 +51,8 @@ const CarDetail = () => {
   const [TimeTaken, setTimeTaken] = useState('');
 
   const route = useRoute();
-  const {phoneNumber} = '7024949888';
+  const phoneNumber = '7024949888';
+  const ALTphoneNumber = '9752084851';
   const [rentalType, setRentalType] = useState('');
 
   const [advancePayment, setAdvancePayment] = useState(false);
@@ -65,34 +66,47 @@ const CarDetail = () => {
   const phone = useSelector(state => state.counter.phone);
 
   const [calculatedValue] = useState(new Animated.Value(0));
-  const [Amount, setAmount] = useState(0);
   const [BikePictureError, setBikePictureError] = useState('');
   const [BikeReadingError, setBikeReadingError] = useState('');
-  const [Estimated_Amount, setEstimatedCost] = useState('');
-
+  const [Estimated_Amount, setEstimatedCost] = useState(0);
+  
   const handalAmount = () => {
-    const days = Math.floor(TimeTaken / 24);
-    const remainingHours = TimeTaken % 24;
+    let timeInHours = parseFloat(TimeTaken); // Ensure TimeTaken is a valid number
+   
+    // Handle case where TimeTaken is invalid or not a number
+    if (isNaN(timeInHours)) {
+      return 0;
+    }
+    if (rentalType === 'days') {
+      timeInHours *= 24;
+    } else if (rentalType === 'months') {
+      timeInHours *= 24 * 30; // Assuming 1 month = 30 days
+    }
+
+    const days = Math.floor(timeInHours / 24);
+    const remainingHours = timeInHours % 24;
+    console.log(selectedCar.ratePerHour)
     const cost =
       days * 1000 +
       Math.floor(remainingHours / 12) * 500 +
-      (remainingHours % 12) * cars.ratePerHour;
+      (remainingHours % 12) * selectedCar.ratePerHour;
 
-    setAmount(cost);
+      console.log(cost)
+      setEstimatedCost(cost);
   };
   const [TimeTakenerror, setTimeTakenerror] = useState('');
   const validateFields = () => {
     let isValid = true;
 
     if (!TimeTaken) {
-      setTimeTakenerror(`Please enter expected ${TimeTakenUnit}`);
+      setTimeTakenerror(`Please enter expected ${rentalType}`);
 
       isValid = false;
     } else {
       setTimeTakenerror('');
     }
 
-    if (!selectedImageBikeReading) {
+    if (!carDetails) {
       setBikeReadingError('Please upload Bike Reading Picture');
       isValid = false;
     } else {
@@ -105,12 +119,7 @@ const CarDetail = () => {
     } else {
       setBikePictureError('');
     }
-    if (!Bikeid) {
-      setBikeiderror('Please choose BikeID');
-      isValid = false;
-    } else {
-      setBikeiderror('');
-    }
+   
 
     return isValid;
   };
@@ -135,7 +144,7 @@ const CarDetail = () => {
       days * 700 +
       Math.floor(remainingHours / 12) * 400 +
       (remainingHours % 12) * selectedCar.ratePerHour;
-    setEstimatedCost(cost);
+   
     return cost;
   };
 
@@ -154,7 +163,8 @@ const CarDetail = () => {
   useEffect(() => {
     const fetchCarData = async () => {
       try {
-        const response = await axios.get(`https://${DOMAIN}/Car/car-info/`);
+        const response = await axios.get(`https://${DOMAIN}/Car/car-info-rent/`);
+        console.log("response",response.data)
         const carOptions = response.data
           .filter(car => car && car.modelName)
           .map(car => ({
@@ -211,6 +221,7 @@ const CarDetail = () => {
         'An unexpected error occurred while capturing the image.',
       );
     }
+    handalAmount()
   };
   const handleSubmit = async () => {
     if (!validateFields()) {
@@ -219,9 +230,11 @@ const CarDetail = () => {
     }
     // Validate required fields
     if (!selectedCar || !rentalType || !TimeTaken || !phoneNumber) {
+      console.log("SelectedCar",selectedCar,"rentalType", rentalType,"TimeTaken", TimeTaken, "phoneNumber",phoneNumber);
       Alert.alert('Error', 'Please fill all the required fields.');
       return;
     }
+  
     let timeInHours = parseFloat(TimeTaken);
     if (rentalType === 'days') {
       timeInHours *= 24;
@@ -241,9 +254,11 @@ const CarDetail = () => {
       );
       formData.append('staff', phone);
       formData.append('Persnal', 0);
+      formData.append('altphone', ALTphoneNumber);
 
-      formData.append('AdvancePayUPI', advanceUPI);
-      formData.append('AdvancePayCash', advanceCash);
+      formData.append('AdvancePay', parseInt(advanceCash) + parseInt(advanceUPI));
+      formData.append('AdvancePayUPI', advanceUPI || 0); 
+      formData.append('AdvancePayCash', advanceCash || 0); 
       formData.append('carid', selectedCar.carid);
       if (BikePicture) {
         const bikePictureData = {
@@ -261,12 +276,12 @@ const CarDetail = () => {
         });
       }
       formData.append('TimeThought', TimeTaken);
-      formData.append('Estimated_Amount', Estimated_Amount);
+      formData.append('Estimated_Amount', Estimated_Amount? Estimated_Amount:0);
 
       //   // Send data to backend
-
-      const response = await axios.post(
-        `https://${DOMAIN}/Car/assign_car_to_car/z${phoneNumber}`,
+      console.log(formData,phoneNumber)
+      const response = await axios.put(
+        `https://${DOMAIN}/Car/assign_car_to_car/${phoneNumber}/`,
         formData,
         {
           headers: {'Content-Type': 'multipart/form-data'},
@@ -387,25 +402,7 @@ const CarDetail = () => {
             )}
           </View>
         </View>
-        <View style={styles.carSelectionContainer}>
-          {BikePictureError ? (
-            <Text style={styles.errorText}>{BikePictureError}</Text>
-          ) : null}
-
-          <TouchableOpacity
-            style={[styles.inputContainer, styles.documentPicker]}
-            onPress={handleBikePicturePicker}>
-            <Text style={styles.uploadText}>
-              Click to Upload Bike Condition.
-            </Text>
-          </TouchableOpacity>
-          {BikePicture && (
-            <View style={styles.imageContainer}>
-              <Image source={{uri: BikePicture}} style={styles.image} />
-              <Text style={styles.imageText}>Bike Condition pic</Text>
-            </View>
-          )}
-        </View>
+       
 
         {/* Rental Type Section */}
         <View style={styles.carSelectionContainer}>
@@ -436,6 +433,26 @@ const CarDetail = () => {
               keyboardType="numeric"
               placeholderTextColor="#888"
             />
+          )}
+        </View>
+        <View style={styles.carSelectionContainer}>
+          {BikePictureError ? (
+            <Text style={styles.errorText}>{BikePictureError}</Text>
+          ) : null}
+
+          <TouchableOpacity
+            style={[styles.inputContainer, styles.documentPicker]}
+            onPress={handleBikePicturePicker}>
+            <Text style={styles.uploadText}>
+              Click to Upload Bike Condition.
+            </Text>
+          </TouchableOpacity>
+          
+          {BikePicture && (
+            <View style={styles.imageContainer}>
+              <Image source={{uri: BikePicture}} style={styles.image} />
+              <Text style={styles.imageText}>Bike Condition pic</Text>
+            </View>
           )}
         </View>
         <View style={styles.carSelectionContainer}>
@@ -550,7 +567,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   image: {
-    width: 360,
+    width: 250,
     height: 180,
     borderRadius: 10,
   },
@@ -558,7 +575,8 @@ const styles = StyleSheet.create({
     color: '#228B22',
     fontWeight: 'bold',
     letterSpacing: 1,
-    marginTop: 10,
+    marginTop: 30,
+    marginBottom: -30,
   },
   carSelectionContainer: {
     backgroundColor: '#fff',

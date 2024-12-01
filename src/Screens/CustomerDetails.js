@@ -282,6 +282,7 @@ const CustomerDetails = () => {
     const pattern = /\/([\w-]+)\.jpg$/;
 
     const newUrl = Adharcard.replace(pattern, '');
+    console.log(newUrl);
     RNFS.readdir(newUrl)
       .then(files => {
         // Filter files with .jpg extension

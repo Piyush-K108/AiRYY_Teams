@@ -28,7 +28,7 @@ const Emergency = () => {
   const [isFocus, setIsFocus] = useState(false);
   const route = useRoute();
   const navigation = useNavigation();
-  const {phoneNumber, EV, userName,car} = route.params;
+  const {phoneNumber,ALTphoneNumber, EV, userName,car} = route.params;
 
   const relationshipData = [
     {label: 'Brother', value: 'Brother'},
@@ -123,6 +123,7 @@ const Emergency = () => {
           if (car){
             navigation.navigate('CarDetail', {
               phoneNumber: phoneNumber,
+              AltphoneNumber: ALTphoneNumber,
             });
           }else{
             navigation.navigate('VehicleDetails', {

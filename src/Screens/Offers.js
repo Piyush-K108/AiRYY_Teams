@@ -56,7 +56,7 @@ const Offers = () => {
     }
 
     try {
-      if (carid) {
+      if (!carid) {
         const response = await axios.get(
           `https://${DOMAIN}/User/number/${carid}/`,
           {car: true},

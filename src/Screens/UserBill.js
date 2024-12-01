@@ -323,7 +323,7 @@ const UserBill = () => {
         Alert.alert('Error', result1.Error || result2.Error);
       } else {
         setModalVisible(false);
-        navigation.navigate('Home');
+        navigation.navigate('DrawerNavigator');
       }
     } catch (error) {
       console.log(error);
