@@ -36,15 +36,13 @@ const Checkbox = ({label, value, onPress}) => (
 const CarRentalInvoice = ({rentalData}) => {
   const [modalVisible, setModalVisible] = useState(true);
   const [billData, setBillData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const [formattedRentalDate, setformattedRentalDate] = useState(null);
   const [formattedreturnDate, setformattedreturnDate] = useState(null);
   const navigation = useNavigation();
   const route = useRoute();
-  const carid = 27
-  const carCondition = 'good'
-
+  const {carid,carCondition} = route.params; 
 
   const [paymentMethod, setPaymentMethod] = useState('');
   const [UPIMethod, setUPIMethod] = useState('');
@@ -366,189 +364,416 @@ const CarRentalInvoice = ({rentalData}) => {
           <ScrollView
             style={styles.container}
             contentContainerStyle={styles.scrollViewContent}>
-            <View style={styles.invoiceCard}>
-              <Text style={styles.invoiceTitle}>Rental Invoice</Text>
+            {billData && (
+              <View style={styles.invoiceCard}>
+                <Text style={styles.invoiceTitle}>Rental Invoice</Text>
 
-              {/* User Details */}
-              <View
-                style={{
-                  flexDirection: 'column',
-                  backgroundColor: 'white',
-                  borderRadius: 30,
-                  // elevation: 1,
-                  borderWidth: 1,
-                  borderColor: '#f3f4f6',
-                  paddingHorizontal: 20,
-                  paddingVertical: 10,
-                }}>
-                <Text
+                {/* User Details */}
+                <View
                   style={{
-                    color: '#000',
-                    fontSize: 12,
-                    fontWeight: '300',
+                    flexDirection: 'column',
                     backgroundColor: 'white',
-                    marginBottom: 14,
+                    borderRadius: 30,
+                    // elevation: 1,
+                    borderWidth: 1,
+                    borderColor: '#f3f4f6',
+                    paddingHorizontal: 20,
+                    paddingVertical: 10,
                   }}>
-                  Customer information
-                </Text>
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>Name:</Text>
-                  <Text style={styles.value}>Prashant Khanchandani</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>Contact:</Text>
-                  <Text style={styles.value}>9685741041</Text>
-                </View>
-              </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginBottom: 10,
+                    }}>
+                    <Text
+                      style={{
+                        color: '#000',
+                        fontSize: 12,
+                        fontWeight: '300',
+                        backgroundColor: 'white',
+                        marginBottom: 14,
+                      }}>
+                      Customer information
+                    </Text>
+                    <Text style={{color: '#000', fontWeight: '700'}}>
+                      User Count - {count}
+                    </Text>
+                  </View>
 
-              {/* Vehicle Details */}
-              <View
-                style={{
-                  flexDirection: 'column',
-                  backgroundColor: 'white',
-                  borderRadius: 30,
-                  // elevation: 1,
-                  borderWidth: 1,
-                  borderColor: '#f3f4f6',
-                  paddingHorizontal: 20,
-                  paddingVertical: 10,
-                  marginTop: 20,
-                  marginBottom: 20,
-                }}>
-                <Text
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>Name:</Text>
+                    <Text style={styles.value}>{billData.user.name}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>Contact:</Text>
+                    <Text style={styles.value}>{billData.user.phone}</Text>
+                  </View>
+                </View>
+
+                {/* Vehicle Details */}
+                <View
                   style={{
-                    color: '#000',
-                    fontSize: 12,
-                    fontWeight: '300',
+                    flexDirection: 'column',
                     backgroundColor: 'white',
-                    marginBottom: 14,
+                    borderRadius: 30,
+                    // elevation: 1,
+                    borderWidth: 1,
+                    borderColor: '#f3f4f6',
+                    paddingHorizontal: 20,
+                    paddingVertical: 10,
+                    marginTop: 20,
+                    marginBottom: 20,
                   }}>
-                  Car Detail
-                </Text>
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>License Plate:</Text>
-                  <Text style={styles.value}>Mp010 -2022</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>KM Before:</Text>
-                  <Text style={styles.value}>200002</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>KM After:</Text>
-                  <Text style={styles.value}>400000</Text>
-                </View>
+                  <Text
+                    style={{
+                      color: '#000',
+                      fontSize: 12,
+                      fontWeight: '300',
+                      backgroundColor: 'white',
+                      marginBottom: 14,
+                    }}>
+                    Car Detail
+                  </Text>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>License Plate:</Text>
+                    <Text style={styles.value}>{billData.Car.carid}</Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>KM Before:</Text>
+                    <Text style={styles.value}>
+                      {billData.Car.KM_Now - billData.KM_For}
+                    </Text>
+                  </View>
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>KM After:</Text>
+                    <Text style={styles.value}>{billData.Car.KM_Now}</Text>
+                  </View>
 
-                {/* Rental Dates */}
-                <View style={styles.detailRow}>
-                  <Text style={styles.label}>Rental Date:</Text>
-                  <Text style={styles.value}>20-11-2024</Text>
+                  {/* Rental Dates */}
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>Rental Date:</Text>
+                    <Text style={styles.value}>{formattedRentalDate}</Text>
+                  </View>
+
+                  <View style={styles.detailRow}>
+                    <Text style={styles.label}>Return Date:</Text>
+                    <Text style={styles.value}>{formattedreturnDate}</Text>
+                  </View>
                 </View>
-
+                {/* Discount Input */}
                 <View style={styles.detailRow}>
-                  <Text style={styles.label}>Return Date:</Text>
-                  <Text style={styles.value}>23-11-2024</Text>
+                  <Text style={styles.label}>Discount:</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={Discount}
+                    onChangeText={setDiscount}
+                    keyboardType="numeric"
+                    placeholder="Enter Discount"
+                  />
                 </View>
-              </View>
-              {/* Discount Input */}
-              <View style={styles.detailRow}>
-                <Text style={styles.label}>Discount:</Text>
-                <TextInput
-                  style={styles.input}
-                  value={Discount}
-                  onChangeText={setDiscount}
-                  keyboardType="numeric"
-                  placeholder="Enter Discount"
-                />
-              </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.label}>Tip:</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={Tip}
+                    onChangeText={setTip}
+                    keyboardType="numeric"
+                    placeholder="Enter Tip"
+                  />
+                </View>
+                {carCondition == 'notgood' ? (
+                  <>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>Damage:</Text>
+                      <TextInput
+                        style={styles.input}
+                        value={Damage}
+                        onChangeText={setDamage}
+                        keyboardType="numeric"
+                        placeholder="Enter Damage"
+                      />
+                    </View>
+                  </>
+                ) : null}
 
-              {/* Payment Method Selection */}
-              <Text style={styles.sectionTitle}>Payment Method</Text>
-              <View style={styles.checkboxGroup}>
-                <Checkbox
-                  label="Cash"
-                  value={paymentMethod === 'cash'}
-                  onPress={() => handlePaymentMethodChange('cash')}
-                />
-                <Checkbox
-                  label="UPI"
-                  value={paymentMethod === 'upi'}
-                  onPress={() => handlePaymentMethodChange('upi')}
-                />
-                <Checkbox
-                  label="Both"
-                  value={paymentMethod === 'both'}
-                  onPress={() => handlePaymentMethodChange('both')}
-                />
-                <Checkbox
-                  label="Cheque"
-                  value={paymentMethod === 'cheque'}
-                  onPress={() => handlePaymentMethodChange('cheque')}
-                />
-              </View>
-
-              {/* UPI Method for UPI and Both Payment */}
-              {(paymentMethod === 'upi' || paymentMethod === 'both') && (
+                {/* Payment Method Selection */}
+                <Text style={styles.sectionTitle}>Payment Method</Text>
                 <View style={styles.checkboxGroup}>
                   <Checkbox
-                    label="QR Code"
-                    value={UPIMethod === 'QR Code'}
-                    onPress={() => setUPIMethod('qr')}
+                    label="Cash"
+                    value={paymentMethod === 'cash'}
+                    onPress={() => handlePaymentMethodChange('cash')}
                   />
                   <Checkbox
-                    label="Bank Transfer"
-                    value={UPIMethod === 'Number'}
-                    onPress={() => setUPIMethod('Number')}
+                    label="UPI"
+                    value={paymentMethod === 'upi'}
+                    onPress={() => handlePaymentMethodChange('upi')}
+                  />
+                  <Checkbox
+                    label="Both"
+                    value={paymentMethod === 'both'}
+                    onPress={() => handlePaymentMethodChange('both')}
+                  />
+                  <Checkbox
+                    label="Cheque"
+                    value={paymentMethod === 'cheque'}
+                    onPress={() => handlePaymentMethodChange('cheque')}
                   />
                 </View>
-              )}
 
-              {/* Amount Inputs for Mixed Payment */}
-              {paymentMethod === 'both' && (
-                <>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.label}>Cash Amount:</Text>
-                    <TextInput
-                      style={styles.input}
-                      value={cash}
-                      onChangeText={setcash}
-                      keyboardType="numeric"
-                      placeholder="Enter Cash Amount"
+                {/* UPI Method for UPI and Both Payment */}
+                {(paymentMethod === 'upi' || paymentMethod === 'both') && (
+                  <View style={styles.checkboxGroup}>
+                    <Checkbox
+                      label="QR Code"
+                      value={UPIMethod === 'QR Code'}
+                      onPress={() => setUPIMethod('qr')}
+                    />
+                    <Checkbox
+                      label="Bank Transfer"
+                      value={UPIMethod === 'Number'}
+                      onPress={() => setUPIMethod('Number')}
                     />
                   </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.label}>UPI Amount:</Text>
-                    <TextInput
-                      style={styles.input}
-                      value={upi}
-                      onChangeText={setupi}
-                      keyboardType="numeric"
-                      placeholder="Enter UPI Amount"
-                    />
-                  </View>
-                </>
-              )}
+                )}
 
-              {/* Financial Details */}
-              <View style={styles.detailRow}>
-                <Text style={styles.label}>Advance Payment:</Text>
-                <Text style={styles.value}>₹350</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.label}>Exact Amount:</Text>
-                <Text style={styles.value}>₹3000</Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.totalLabel}>Total Amount:</Text>
-                <Text style={styles.totalValue}>₹50000</Text>
-              </View>
+                {/* Amount Inputs for Mixed Payment */}
+                {paymentMethod === 'both' && (
+                  <>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>Cash Amount:</Text>
+                      <TextInput
+                        style={styles.input}
+                        value={cash}
+                        onChangeText={setcash}
+                        keyboardType="numeric"
+                        placeholder="Enter Cash Amount"
+                      />
+                    </View>
+                    <View style={styles.detailRow}>
+                      <Text style={styles.label}>UPI Amount:</Text>
+                      <TextInput
+                        style={styles.input}
+                        value={upi}
+                        onChangeText={setupi}
+                        keyboardType="numeric"
+                        placeholder="Enter UPI Amount"
+                      />
+                    </View>
+                  </>
+                )}
 
-              {/* Submit Button */}
-              <TouchableOpacity
-                style={styles.submitButton}
-                onPress={handleSubmitInvoice}>
-                <Text style={styles.submitButtonText}>Generate Invoice</Text>
-              </TouchableOpacity>
-            </View>
+                {Deposite > 0 ? (
+                  <>
+                    <View style={styles.labelContainer}>
+                      <Text style={styles.Lable}>Deposite Amount:</Text>
+                      <Text style={styles.labelValue}>{Deposite}</Text>
+                      <View
+                        style={[
+                          styles.checkboxContainer2,
+                          {marginTop: 10, marginBottom: 10},
+                        ]}>
+                        <Checkbox
+                          label="Give"
+                          value={DepositeMethod === 'Give'}
+                          onPress={() => handledepositeChange('Give')}
+                        />
+                        <Checkbox
+                          label="Keep"
+                          value={DepositeMethod === 'keep'}
+                          onPress={() => {
+                            handledepositeChange('keep');
+                          }}
+                        />
+                      </View>
+                    </View>
+
+                    {DepositeMethod === 'Give' ? (
+                      <>
+                        <Text style={styles.label}>
+                          Deposite Return Method:
+                        </Text>
+                        <View
+                          style={[
+                            styles.checkboxContainer,
+                            {marginTop: 20, marginBottom: 20},
+                          ]}>
+                          <Checkbox
+                            label="Cash"
+                            value={return_amountMethod === 'cash'}
+                            onPress={() => {
+                              handlereturn_AMount_Method('cash');
+                            }}
+                          />
+                          <Checkbox
+                            label="UPI"
+                            value={return_amountMethod === 'upi'}
+                            onPress={() => handlereturn_AMount_Method('upi')}
+                          />
+                          <Checkbox
+                            label="both"
+                            value={return_amountMethod === 'both'}
+                            onPress={() => handlereturn_AMount_Method('both')}
+                          />
+                          <Checkbox
+                            label="cheque"
+                            value={return_amountMethod === 'cheque'}
+                            onPress={() => {
+                              handlereturn_AMount_Method('cheque');
+                            }}
+                          />
+                        </View>
+
+                        {return_amountMethod == 'both' ? (
+                          <>
+                            <View style={styles.labelContainer}>
+                              <Text style={styles.Lable}>Cash:</Text>
+
+                              <TextInput
+                                style={styles.inputDiscount}
+                                onChangeText={text => {
+                                  setr_cash(text);
+                                }}
+                                value={r_cash}
+                                keyboardType="numeric"
+                                placeholder="Enter Cash"
+                                placeholderTextColor={'red'}
+                              />
+                            </View>
+
+                            <View style={styles.labelContainer}>
+                              <Text style={styles.Lable}>UPI:</Text>
+                              <TextInput
+                                style={styles.inputDiscount}
+                                onChangeText={text => {
+                                  setr_upi(text);
+                                }}
+                                value={r_upi}
+                                keyboardType="numeric"
+                                placeholder="Enter UPI"
+                                placeholderTextColor={'red'}
+                              />
+                            </View>
+                          </>
+                        ) : null}
+                      </>
+                    ) : null}
+
+                    {DepositeMethod === 'keep' &&
+                    billData.Amount -
+                      billData.AdvancePay -
+                      Discount +
+                      parseFloat(Tip) -
+                      Deposite <
+                      0 ? (
+                      <>
+                        <Text style={styles.label}>Rest Return Method:</Text>
+                        <View
+                          style={[
+                            styles.checkboxContainer,
+                            {marginTop: 20, marginBottom: 20},
+                          ]}>
+                          <Checkbox
+                            label="Cash"
+                            value={return_amountMethod === 'cash'}
+                            onPress={() => {
+                              handlereturn_AMount_Method('cash');
+                            }}
+                          />
+                          <Checkbox
+                            label="UPI"
+                            value={return_amountMethod === 'upi'}
+                            onPress={() => handlereturn_AMount_Method('upi')}
+                          />
+                          <Checkbox
+                            label="both"
+                            value={return_amountMethod === 'both'}
+                            onPress={() => handlereturn_AMount_Method('both')}
+                          />
+                          <Checkbox
+                            label="cheque"
+                            value={return_amountMethod === 'cheque'}
+                            onPress={() => {
+                              handlereturn_AMount_Method('cheque');
+                            }}
+                          />
+                        </View>
+
+                        {return_amountMethod == 'both' ? (
+                          <>
+                            <View style={styles.labelContainer}>
+                              <Text style={styles.Lable}>Cash:</Text>
+
+                              <TextInput
+                                style={styles.inputDiscount}
+                                onChangeText={text => {
+                                  setr_cash(text);
+                                }}
+                                value={r_cash}
+                                keyboardType="numeric"
+                                placeholder="Enter Cash"
+                                placeholderTextColor={'red'}
+                              />
+                            </View>
+
+                            <View style={styles.labelContainer}>
+                              <Text style={styles.Lable}>UPI:</Text>
+                              <TextInput
+                                style={styles.inputDiscount}
+                                onChangeText={text => {
+                                  setr_upi(text);
+                                }}
+                                value={r_upi}
+                                keyboardType="numeric"
+                                placeholder="Enter UPI"
+                                placeholderTextColor={'red'}
+                              />
+                            </View>
+                          </>
+                        ) : null}
+                      </>
+                    ) : null}
+                  </>
+                ) : null}
+
+                {/* Financial Details */}
+                <View style={styles.detailRow}>
+                  <Text style={styles.label}>Advance Payment:</Text>
+                  <Text style={styles.value}>{billData.AdvancePay}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.label}>Exact Amount:</Text>
+                  <Text style={styles.value}>{billData.Amount}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.totalLabel}>Total Amount:</Text>
+                  <Text style={styles.totalValue}>
+                    {DepositeMethod === 'Give' ? (
+                      <Text style={styles.labelValue2}>
+                        {billData.Amount -
+                          billData.AdvancePay -
+                          Discount +
+                          parseFloat(Tip)}
+                      </Text>
+                    ) : (
+                      <Text style={styles.labelValue2}>
+                        {billData.Amount -
+                          billData.AdvancePay -
+                          Discount +
+                          parseFloat(Tip) -
+                          Deposite}
+                      </Text>
+                    )}
+                  </Text>
+                </View>
+
+                {/* Submit Button */}
+                <TouchableOpacity style={styles.submitButton}>
+                  <Text style={styles.submitButtonText}>Generate Invoice</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </ScrollView>
         </Modal>
       )}
@@ -559,6 +784,10 @@ const CarRentalInvoice = ({rentalData}) => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
+  },
+  checkboxContainer2: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
   container: {
     flex: 1,
