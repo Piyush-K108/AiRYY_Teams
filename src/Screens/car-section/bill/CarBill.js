@@ -36,13 +36,14 @@ const Checkbox = ({label, value, onPress}) => (
 const CarRentalInvoice = ({rentalData}) => {
   const [modalVisible, setModalVisible] = useState(true);
   const [billData, setBillData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loading2, setLoading2] = useState(false);
 
   const [formattedRentalDate, setformattedRentalDate] = useState(null);
   const [formattedreturnDate, setformattedreturnDate] = useState(null);
   const navigation = useNavigation();
   const route = useRoute();
-  const {carid,carCondition} = route.params; 
+  const {carid, carCondition} = route.params;
 
   const [paymentMethod, setPaymentMethod] = useState('');
   const [UPIMethod, setUPIMethod] = useState('');
@@ -301,38 +302,57 @@ const CarRentalInvoice = ({rentalData}) => {
         cheque: r_Cheque ? parseInt(r_Cheque, 10) : 0,
         Reason: reson,
       });
+      setLoading2(true);
 
-      setLoading(true);
+      if (final_return_amount != 0) {
+        console.log(data2);
+        const [response1, response2] = await Promise.all([
+          fetch(`https://${DOMAIN}/Car/Bill/${carid}/`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: data,
+          }),
+          fetch(`https://${DOMAIN}/User/we_spent/`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: data2,
+          }),
+        ]);
+
+        const result1 = await response1.json();
+        const result2 = await response2.json();
+
+        if (result1.Error || result2.Error) {
+          Alert.alert('Error', result1.Error || result2.Error);
+        } else {
+          setModalVisible(false);
+          navigation.navigate('CarDrawerNavigator');
+        }
+      } else {
+        const [response1] = await Promise.all([
+          fetch(`https://${DOMAIN}/Car/Bill/${carid}/`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: data,
+          }),
+        ]);
+
+        const result1 = await response1.json();
+
+        if (result1.Error) {
+          Alert.alert('Error', result1.Error);
+        } else {
+          setModalVisible(false);
+          navigation.navigate('CarDrawerNavigator');
+        }
+      }
 
       // Execute both API requests in parallel
-      console.log(data);
-      const [response1, response2] = await Promise.all([
-        fetch(`https://${DOMAIN}/Car/Bill/${carid}/`, {
-          method: 'PUT',
-          headers: {'Content-Type': 'application/json'},
-          body: data,
-        }),
-        fetch(`https://${DOMAIN}/User/we_spent/`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: data2,
-        }),
-      ]);
-
-      const result1 = await response1.json();
-      const result2 = await response2.json();
-
-      if (result1.Error || result2.Error) {
-        Alert.alert('Error', result1.Error || result2.Error);
-      } else {
-        setModalVisible(false);
-        navigation.navigate('DrawerNavigator');
-      }
     } catch (error) {
       console.log(error);
       Alert.alert('Error', 'Try again!');
     } finally {
-      setLoading(false);
+      setLoading2(false);
     }
   };
 
@@ -353,12 +373,29 @@ const CarRentalInvoice = ({rentalData}) => {
                   fontWeight: '600',
                   marginTop: 20,
                   fontSize: 15,
+                  zIndex: 100,
                 }}>
                 Generating Bill
               </Text>
             </View>
           </View>
         </Modal>
+      ) : loading2 ? (
+        <View style={styles.modalContainer}>
+          <View style={styles.loadingIndicator}>
+            <ActivityIndicator size="large" color="#000" />
+            <Text
+              style={{
+                color: '#000',
+                fontWeight: '600',
+                marginTop: 20,
+                fontSize: 15,
+                zIndex: 100,
+              }}>
+              Closing Bill
+            </Text>
+          </View>
+        </View>
       ) : (
         <Modal>
           <ScrollView
@@ -769,7 +806,9 @@ const CarRentalInvoice = ({rentalData}) => {
                 </View>
 
                 {/* Submit Button */}
-                <TouchableOpacity style={styles.submitButton}>
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={() => handleCloseModal()}>
                   <Text style={styles.submitButtonText}>Generate Invoice</Text>
                 </TouchableOpacity>
               </View>
@@ -784,6 +823,9 @@ const CarRentalInvoice = ({rentalData}) => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
   },
   checkboxContainer2: {
     flexDirection: 'row',
@@ -803,7 +845,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     // backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    backgroundColor: '#feb101',
+    backgroundColor: '#FFF',
   },
   inputDiscount: {
     fontWeight: 'bold',
