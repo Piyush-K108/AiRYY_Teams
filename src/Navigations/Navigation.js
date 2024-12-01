@@ -1,7 +1,7 @@
 import React from 'react';
-import {useSelector} from 'react-redux';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '../Screens/Login';
 import CustomerDetails from '../Screens/CustomerDetails';
 import VehicleDetails from '../Screens/VahicleDetails';
@@ -29,27 +29,26 @@ import CarBill from '../Screens/car-section/bill/CarBill';
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
-  const loggedIn = useSelector(state => state.counter.loggedIn); // Update the selector path
+  const loggedIn = useSelector((state) => state.counter.loggedIn); // Update the selector path
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         {loggedIn ? (
           <>
             <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
             <Stack.Screen name="DepositeDetail" component={DepositeDetail} />
-            <Stack.Screen
-              name="CarDepositeDetail"
-              component={CarDepositeDetail}
-            />
             <Stack.Screen name="BikeDoc" component={BikeDoc} />
             <Stack.Screen name="CarBill" component={CarBill} />
             <Stack.Screen name="CarDetail" component={CarDetail} />
             <Stack.Screen
+              name="CarDepositeDetail"
+              component={CarDepositeDetail}
+            />
+            <Stack.Screen
               name="CarCustomerDetail"
               component={CarCustomerDetail}
             />
-
             <Stack.Screen name="Offers" component={Offers} />
             <Stack.Screen name="CustomerDetails" component={CustomerDetails} />
             <Stack.Screen name="CarHome" component={CarHome} />

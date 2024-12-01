@@ -43,7 +43,6 @@ const CustomerDetails = () => {
   const [User, setUser] = useState([]);
   const [EmergencyCOntact, setEmergencyCOntact] = useState([]);
 
-
   const [LastName, setLastName] = useState('');
   const [bikeType, setBikeType] = useState('EV');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -103,6 +102,11 @@ const CustomerDetails = () => {
 
   const handleConfirmOpt = () => {
     // Handle confirming OTP received
+    setPhoneNumber("")
+    setAdharcard("")
+    setLicense("")
+    setLastName("")
+    setUserName("")
     setIsOptReceived(false); // Reset state for next verification
   };
 
@@ -223,7 +227,7 @@ const CustomerDetails = () => {
 
   const handleSubmit = async () => {
     if (!validateFields()) {
-      setisActive(false)
+      setisActive(false);
       Alert.alert('Error', 'Fill All The Fields Again');
       // Fields are not valid, show error or perform necessary actions
       return;
@@ -240,44 +244,24 @@ const CustomerDetails = () => {
           if (responseJson.Error) {
             Alert.alert('Error', responseJson.Error);
           } else if (User && User.Signature && !EmergencyCOntact) {
-            if (car){
-              navigation.navigate('EmergencyCar', {
-                phoneNumber: phoneNumber,
-                EV: EV,
-                userName: userName,
-              });
-            }
-            else{
-              navigation.navigate('Emergency', {
-                phoneNumber: phoneNumber,
-                EV: EV,
-                userName: userName,
-              });
-            }
-            
-          } 
-          else if(User && User.Signature && EmergencyCOntact){
-            if(car){
-              navigation.navigate('CarDetails', {
-                phoneNumber: phoneNumber,
-                EV: EV,
-                userName: userName,
-              });
-            }
-            else{
-              navigation.navigate('VehicleDetails', {
-                phoneNumber: phoneNumber,
-                EV: EV,
-                userName: userName,
-              });
-            }
-           
-          }else {
+            navigation.navigate('Emergency', {
+              phoneNumber: phoneNumber,
+              EV: EV,
+              userName: userName,
+              car: false,
+            });
+          } else if (User && User.Signature && EmergencyCOntact) {
+            navigation.navigate('VehicleDetails', {
+              phoneNumber: phoneNumber,
+              EV: EV,
+              userName: userName,
+            });
+          } else {
             navigation.navigate('AgreementPage', {
               phoneNumber: phoneNumber,
               EV: EV,
               userName: userName,
-              car:car
+              car: false,
             });
           }
 
@@ -743,7 +727,6 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     height: 450,
   },
-
 
   checkboxContainer: {
     flexDirection: 'row',
