@@ -37,11 +37,11 @@ const Navigation = () => {
       <Stack.Navigator screenOptions={{headerShown: false}}>
         {loggedIn ? (
           <>
+            <Stack.Screen name="CarBill" component={CarBill} />
             <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
             <Stack.Screen name="CarDrawerNavigator" component={CarDrawerNavigator} />
             <Stack.Screen name="CarDetail" component={CarDetail} />
             <Stack.Screen name="DepositeDetail" component={DepositeDetail} />
-            <Stack.Screen name="CarBill" component={CarBill} />
             <Stack.Screen name="BikeDoc" component={BikeDoc} />
             <Stack.Screen name="PersnalUSe" component={PersnalUSe} />
             <Stack.Screen name="BillData" component={BillData} />

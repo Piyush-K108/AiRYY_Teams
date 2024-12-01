@@ -158,7 +158,7 @@ const CarDepositeDetail = () => {
                   b_id: null,
                   carid: carid,
                   bikeCondition: "",
-                  CarCondition: CarCondition,
+                  carCondition: CarCondition,
                 });
               },
             },

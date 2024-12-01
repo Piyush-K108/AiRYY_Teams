@@ -27,7 +27,7 @@ const Offers = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {b_id, carid, bikeCondition, carCondition} = route.params;
-  console.log(route.params);
+  console.log(b_id, carid, bikeCondition, carCondition);
   const [Yes, setYes] = useState(null);
   const [Clicked, setClicked] = useState(null);
 
@@ -58,23 +58,21 @@ const Offers = () => {
 
     try {
       if (carid) {
-        console.log(`https://${DOMAIN}/User/number/${carid}/`)
+  
         var response = await axios.get(
-          `https://${DOMAIN}/User/number/${carid}/`,
-          {"car": true},
+          `https://${DOMAIN}/User/number/${carid}/?car=true`,
         );
       } else {
         var response = await axios.get(
           `https://${DOMAIN}/User/number/${b_id}/`,
-          {},
         );
       }
 
       const phone = response.data;
-      console.log(phone);
+      console.log("hiiii",phone);
       const response2 = await axios.put(
-        `https://${DOMAIN}/User/Offers/${phone}/`,
-        {YES: Yes}, // Use data for PUT requests
+        `https://${DOMAIN}/User/Offers/${phone}/?YES=${Yes}`,
+  
       );
 
       if (response2.data && response2.data.message) {
@@ -84,8 +82,8 @@ const Offers = () => {
             text: 'OK',
             onPress: () => {
               if (carid) {
-                navigation.navigate('CarUserBill', {
-                  b_id: carid,
+                navigation.navigate('CarBill', {
+                  carid: carid,
                   carCondition: carCondition,
                 });
                 shouldNavigate = true;
@@ -101,8 +99,8 @@ const Offers = () => {
         ]);
       } else {
         if (carid) {
-          navigation.navigate('CarDrawerNavigator', {
-            b_id: carid,
+          navigation.navigate('CarBill', {
+            carid: carid,
             carCondition: carCondition,
           });
         } else {
@@ -115,7 +113,7 @@ const Offers = () => {
     } catch (error) {
       console.error('Error in navigateToOfferDetails:', error);
       if (carid) {
-        navigation.navigate('CarDrawerNavigator', {
+        navigation.navigate('CarBill', {
           b_id: carid,
           carCondition: carCondition,
         });
