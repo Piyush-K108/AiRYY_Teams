@@ -25,6 +25,7 @@ import CarDepositeDetail from '../Screens/car-section/car-deposit/CarDepositeDet
 import CarDetail from '../Screens/car-section/car-rental/CarDetail';
 import CarCustomerDetail from '../Screens/car-section/car-rental/CarCustomerDetail';
 import CarBill from '../Screens/car-section/bill/CarBill';
+import CarDrawerNavigator from './CarDrawerNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +38,7 @@ const Navigation = () => {
         {loggedIn ? (
           <>
             <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
+            <Stack.Screen name="CarDrawerNavigator" component={CarDrawerNavigator} />
             <Stack.Screen name="CarDetail" component={CarDetail} />
             <Stack.Screen name="DepositeDetail" component={DepositeDetail} />
             <Stack.Screen name="CarBill" component={CarBill} />

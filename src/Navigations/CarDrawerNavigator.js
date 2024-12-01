@@ -18,11 +18,10 @@ import {
 import CarRent from '../Screens/car-section/CarHome';
 import {useNavigation} from '@react-navigation/native';
 import BikeAvailability from '../Screens/BikeAvailability';
-import Home from '../Screens/Home';
-
 import {useDispatch} from 'react-redux';
 import {logout} from '../Redux/Counter/counterAction';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
 
 import AttachedBikes from '../Screens/AttachedBikes';
 import PersnalUSe from '../Screens/PersnalUse';
@@ -31,7 +30,7 @@ import Offers from '../Screens/Offers';
 import Scheduled from '../Screens/Scheduled';
 import Servicing from '../Screens/Servicing';
 import UserBill from '../Screens/UserBill';
-
+import CarHome from '../Screens/car-section/CarHome';
 
 
 import BikeDoc from '../Screens/BikeDoc';
@@ -78,7 +77,7 @@ const DrawerContent = props => {
         </View>
       </DrawerContentScrollView>
       <View style={styles.copyrightContainer}>
-        <Text style={styles.copyrightText}>© 2023 AiRYY Rides</Text>
+        <Text style={styles.copyrightText}>© 2024 AiRYY Rides</Text>
       </View>
     </View>
   );
@@ -86,10 +85,10 @@ const DrawerContent = props => {
 
 const Drawer = createDrawerNavigator();
 
-const DrawerNavigator = () => {
+const CarDrawerNavigator = () => {
   return (
     <Drawer.Navigator
-      initialRouteName="Home"
+      initialRouteName="Car Home"
       screenOptions={{
         headerShown: true,
         headerStyle: {backgroundColor: '#feb101'},
@@ -104,10 +103,10 @@ const DrawerNavigator = () => {
       }}
       drawerContent={props => <DrawerContent {...props} />}>
       <Drawer.Screen
-        name="Home"
-        component={Home}
+        name="Car Home"
+        component={CarHome}
         options={({navigation}) => ({
-          drawerLabel: 'Home',
+          drawerLabel: 'Car Home',
           title: '',
           drawerIcon: ({focused}) => (
             <Ionicons
@@ -118,7 +117,7 @@ const DrawerNavigator = () => {
           ),
           drawerItemStyle: {textAlign: 'left'}, // Align text to the left
           headerStyle: {
-            backgroundColor: '#feb101',
+            backgroundColor: '#fde68a',
             elevation: 0, // For Android (removes shadow)
             shadowOpacity: 0, // For iOS (removes shadow opacity)
             shadowColor: 'transparent', // For iOS (makes shadow color transparent)
@@ -128,8 +127,8 @@ const DrawerNavigator = () => {
           headerRight: () => (
             <TouchableOpacity
               style={styles.rentCarButton}
-              onPress={() => navigation.navigate('CarDrawerNavigator')}>
-              <Ionicons name={'car-sport'} size={24} color={'#000'} />
+              onPress={() => navigation.navigate('DrawerNavigator')}>
+              <MuiIcon name={'motorbike'} size={24} color={'#000'} />
             </TouchableOpacity>
           ),
         })}
@@ -351,4 +350,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DrawerNavigator;
+export default CarDrawerNavigator;
