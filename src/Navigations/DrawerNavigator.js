@@ -15,7 +15,7 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from '@react-navigation/drawer';
-import CarRent from '../Screens/car-section/CarHome';
+
 import {useNavigation} from '@react-navigation/native';
 import BikeAvailability from '../Screens/BikeAvailability';
 import Home from '../Screens/Home';

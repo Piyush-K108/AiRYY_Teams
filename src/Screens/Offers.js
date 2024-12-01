@@ -27,6 +27,7 @@ const Offers = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {b_id, carid, bikeCondition, carCondition} = route.params;
+  console.log(route.params);
   const [Yes, setYes] = useState(null);
   const [Clicked, setClicked] = useState(null);
 
@@ -56,13 +57,14 @@ const Offers = () => {
     }
 
     try {
-      if (!carid) {
-        const response = await axios.get(
+      if (carid) {
+        console.log(`https://${DOMAIN}/User/number/${carid}/`)
+        var response = await axios.get(
           `https://${DOMAIN}/User/number/${carid}/`,
-          {car: true},
+          {"car": true},
         );
       } else {
-        const response = await axios.get(
+        var response = await axios.get(
           `https://${DOMAIN}/User/number/${b_id}/`,
           {},
         );
@@ -99,7 +101,7 @@ const Offers = () => {
         ]);
       } else {
         if (carid) {
-          navigation.navigate('CarHome', {
+          navigation.navigate('CarDrawerNavigator', {
             b_id: carid,
             carCondition: carCondition,
           });
@@ -113,7 +115,7 @@ const Offers = () => {
     } catch (error) {
       console.error('Error in navigateToOfferDetails:', error);
       if (carid) {
-        navigation.navigate('CarHome', {
+        navigation.navigate('CarDrawerNavigator', {
           b_id: carid,
           carCondition: carCondition,
         });

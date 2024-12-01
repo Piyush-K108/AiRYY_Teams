@@ -295,7 +295,7 @@ const CarDetail = () => {
           [
             {
               text: 'OK',
-              onPress: () => navigation.navigate('CarHome'),
+              onPress: () => navigation.navigate('CarDrawerNavigator'),
             },
           ],
         );
