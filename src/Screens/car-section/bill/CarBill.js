@@ -124,6 +124,7 @@ const CarRentalInvoice = ({rentalData}) => {
       const formattedDate2 = returnDate.toLocaleString(undefined, options);
       setBillData(data.Data);
       setcount(data.Count);
+      console.log(data.return)
       setDeposite(data.return);
       setformattedRentalDate(formattedDate);
       setformattedreturnDate(formattedDate2);
@@ -381,21 +382,27 @@ const CarRentalInvoice = ({rentalData}) => {
           </View>
         </Modal>
       ) : loading2 ? (
-        <View style={styles.modalContainer}>
-          <View style={styles.loadingIndicator}>
-            <ActivityIndicator size="large" color="#000" />
-            <Text
-              style={{
-                color: '#000',
-                fontWeight: '600',
-                marginTop: 20,
-                fontSize: 15,
-                zIndex: 100,
-              }}>
-              Closing Bill
-            </Text>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.loadingIndicator}>
+              <ActivityIndicator size="large" color="#000" />
+              <Text
+                style={{
+                  color: '#000',
+                  fontWeight: '600',
+                  marginTop: 20,
+                  fontSize: 15,
+                  zIndex: 100,
+                }}>
+                Commiting Bill
+              </Text>
+            </View>
           </View>
-        </View>
+        </Modal>
       ) : (
         <Modal>
           <ScrollView
@@ -565,7 +572,7 @@ const CarRentalInvoice = ({rentalData}) => {
                     <Checkbox
                       label="QR Code"
                       value={UPIMethod === 'QR Code'}
-                      onPress={() => setUPIMethod('qr')}
+                      onPress={() => setUPIMethod('QR Code')}
                     />
                     <Checkbox
                       label="Bank Transfer"

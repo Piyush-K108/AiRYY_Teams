@@ -15,6 +15,7 @@ import PersnalUSe from '../Screens/PersnalUse';
 import DirectBill from '../Screens/DirectBill';
 import AttachedBikes from '../Screens/AttachedBikes';
 import BillData from '../Screens/BillData';
+import CarAvailability from '../Screens/car-section/CarAvailability';
 import Offers from '../Screens/Offers';
 import Scheduled from '../Screens/Scheduled';
 import Servicing from '../Screens/Servicing';
@@ -40,6 +41,7 @@ const Navigation = () => {
             <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
             <Stack.Screen name="CarBill" component={CarBill} />
             <Stack.Screen name="CarDrawerNavigator" component={CarDrawerNavigator} />
+            <Stack.Screen name="CarAvailability" component={CarAvailability} />
             <Stack.Screen name="CarDetail" component={CarDetail} />
             <Stack.Screen name="DepositeDetail" component={DepositeDetail} />
             <Stack.Screen name="BikeDoc" component={BikeDoc} />

@@ -51,8 +51,7 @@ const CarDetail = () => {
   const [TimeTaken, setTimeTaken] = useState('');
 
   const route = useRoute();
-  const phoneNumber = '7024949888';
-  const ALTphoneNumber = '9752084851';
+  const {phoneNumber,ALTphoneNumber} = route.params;
   const [rentalType, setRentalType] = useState('');
 
   const [advancePayment, setAdvancePayment] = useState(false);
@@ -244,13 +243,11 @@ const CarDetail = () => {
 
     try {
       // Prepare data payload
-      const totalReturnAmount = parseInt(depositPayment) + parseInt(depositUPI);
+      const totalReturnAmount = parseInt(depositCash?depositCash:0) + parseInt(depositUPI?depositUPI:0);
       const formData = new FormData();
       formData.append(
         'return',
-        `cash = ${parseInt(depositCash)} upi = ${parseInt(
-          depositUPI,
-        )} total = ${totalReturnAmount}`,
+        `cash = ${parseInt(depositCash?depositCash:0)} upi = ${parseInt(depositUPI?depositUPI:0)} total = ${totalReturnAmount}`
       );
       formData.append('staff', phone);
       formData.append('Persnal', 0);
@@ -278,8 +275,7 @@ const CarDetail = () => {
       formData.append('TimeThought', TimeTaken);
       formData.append('Estimated_Amount', Estimated_Amount? Estimated_Amount:0);
 
-      //   // Send data to backend
-      console.log(formData,phoneNumber)
+
       const response = await axios.put(
         `https://${DOMAIN}/Car/assign_car_to_car/${phoneNumber}/`,
         formData,

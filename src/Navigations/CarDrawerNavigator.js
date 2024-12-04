@@ -16,6 +16,7 @@ import {
   DrawerItemList,
 } from '@react-navigation/drawer';
 import CarRent from '../Screens/car-section/CarHome';
+import CarAvailability from '../Screens/car-section/CarAvailability';
 import {useNavigation} from '@react-navigation/native';
 import BikeAvailability from '../Screens/BikeAvailability';
 import {useDispatch} from 'react-redux';
@@ -135,14 +136,14 @@ const CarDrawerNavigator = () => {
       />
 
       <Drawer.Screen
-        name="BikeAvailability"
-        component={BikeAvailability}
+        name="Car Availability"
+        component={CarAvailability}
         options={{
-          drawerLabel: 'Bike Availability',
-          title: 'Bike Availability',
+          drawerLabel: 'Car Availability',
+          title: 'Car Availability',
           drawerIcon: ({focused}) => (
             <MuiIcon
-              name={focused ? 'motorbike' : 'motorbike'} // Use your preferred icon names
+              name={focused ? 'car' : 'car'} // Use your preferred icon names
               size={26}
               color={focused ? '#feb101' : '#000000'}
             />
@@ -188,8 +189,8 @@ const CarDrawerNavigator = () => {
         name="BikeDoc"
         component={BikeDoc}
         options={{
-          drawerLabel: 'Bike Documents',
-          title: 'Bike Documents',
+          drawerLabel: 'Car Documents',
+          title: 'Car Documents',
           drawerIcon: ({focused}) => (
             <MuiIcon
               name={focused ? 'file-document' : 'file-document'} // Use your preferred icon names
@@ -217,11 +218,11 @@ const CarDrawerNavigator = () => {
         }}
       />
       <Drawer.Screen
-        name="AttachedBikes"
+        name="AttachedCars"
         component={AttachedBikes}
         options={{
-          drawerLabel: 'Attach Bikes',
-          title: 'Attach Bikes',
+          drawerLabel: 'Attach Cars',
+          title: 'Attach Cars',
           drawerIcon: ({focused}) => (
             <MuiIcon
               name={focused ? 'motorbike-electric' : 'motorbike-electric'} // Use your preferred icon names

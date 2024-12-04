@@ -27,7 +27,6 @@ const Offers = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {b_id, carid, bikeCondition, carCondition} = route.params;
-  console.log(b_id, carid, bikeCondition, carCondition);
   const [Yes, setYes] = useState(null);
   const [Clicked, setClicked] = useState(null);
 
@@ -69,7 +68,6 @@ const Offers = () => {
       }
 
       const phone = response.data;
-      console.log("hiiii",phone);
       const response2 = await axios.put(
         `https://${DOMAIN}/User/Offers/${phone}/?YES=${Yes}`,
   
