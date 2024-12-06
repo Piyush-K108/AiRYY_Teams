@@ -32,10 +32,7 @@ import Scheduled from '../Screens/Scheduled';
 import Servicing from '../Screens/Servicing';
 import UserBill from '../Screens/UserBill';
 
-
-
 import BikeDoc from '../Screens/BikeDoc';
-
 
 const DrawerContent = props => {
   const dispatch = useDispatch();
@@ -198,8 +195,9 @@ const DrawerNavigator = () => {
               color={focused ? '#feb101' : '#000000'}
             />
           ),
-          drawerItemStyle: {textAlign: 'left'}, // Align text to the left
+          drawerItemStyle: {textAlign: 'left'},
         }}
+        initialParams={{car: false}}
       />
       <Drawer.Screen
         name="Servicing"

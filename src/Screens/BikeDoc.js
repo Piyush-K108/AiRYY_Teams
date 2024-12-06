@@ -14,7 +14,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import axios from 'axios';
 import {DOMAIN} from '@env';
 
-const BikeDoc = ({navigation}) => {
+const BikeDoc = ({navigation, route}) => {
   const [bikes, setBikes] = useState([]);
   const [bikeDocs, setBikeDocs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,6 +22,7 @@ const BikeDoc = ({navigation}) => {
   const [filteredBikes, setFilteredBikes] = useState([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [copyIconState, setCopyIconState] = useState({});
+  const {car} = route.params;
 
   useEffect(() => {
     // Conditionally show/hide the header based on isSearchActive state
@@ -60,7 +61,7 @@ const BikeDoc = ({navigation}) => {
   }, [isSearchActive, navigation]);
 
   useEffect(() => {
-    fetch(`https://${DOMAIN}/Admin/bike-data/`)
+    fetch(`https://${DOMAIN}/Admin/${car ? 'car' : 'bike'}-data/`)
       .then(response => response.json())
       .then(data => {
         setBikes(data);
@@ -72,7 +73,7 @@ const BikeDoc = ({navigation}) => {
         console.error('Error fetching bike data:', error);
       });
 
-    fetch(`https://${DOMAIN}/Admin/bike-doc/`)
+    fetch(`https://${DOMAIN}/Admin/${car ? 'car' : 'bike'}-doc/`)
       .then(response => response.json())
       .then(data => {
         setBikeDocs(data);
@@ -84,15 +85,25 @@ const BikeDoc = ({navigation}) => {
   }, []);
 
   const handleSearch = query => {
+    let filtered;
     setSearchQuery(query);
     if (query === '') {
       setFilteredBikes(bikes);
     } else {
-      const filtered = bikes.filter(
-        bike =>
-          bike.b_id.toString().includes(query) ||
-          bike.license_plate.toLowerCase().includes(query.toLowerCase()),
-      );
+      if (car) {
+        filtered = bikes.filter(
+          bike =>
+            bike.carid.toString().includes(query) ||
+            bike.license_plate.toLowerCase().includes(query.toLowerCase()),
+        );
+      } else {
+        filtered = bikes.filter(
+          bike =>
+            bike.b_id.toString().includes(query) ||
+            bike.license_plate.toLowerCase().includes(query.toLowerCase()),
+        );
+      }
+
       setFilteredBikes(filtered);
     }
   };
@@ -103,21 +114,25 @@ const BikeDoc = ({navigation}) => {
       [bikeId]: true,
     }));
 
-
-     setTimeout(() => {
-       setCopyIconState(prevState => ({
-         ...prevState,
-         [bikeId]: false,
-       }));
-     }, 5000);
-
+    setTimeout(() => {
+      setCopyIconState(prevState => ({
+        ...prevState,
+        [bikeId]: false,
+      }));
+    }, 5000);
 
     setIsSearchActive(false);
     setFilteredBikes(bikes);
     setSearchQuery('');
-    const bikeDoc = bikeDocs.find(
-      doc => doc.bike.toString() === bikeId.toString(),
-    );
+    var bikeDoc;
+    if (car) {
+      
+      bikeDoc = bikeDocs.find(
+        doc => doc.Car.toString() === bikeId.toString(),
+      );
+    } else {
+      bikeDoc = bikeDocs.find(doc => doc.bike.toString() === bikeId.toString());
+    }
 
     if (!bikeDoc) {
       Alert.alert('Error', 'No documents found for this bike.');
@@ -127,6 +142,7 @@ const BikeDoc = ({navigation}) => {
     const urls = [bikeDoc.Bill, bikeDoc.RC_card, bikeDoc.Insurance].filter(
       url => url,
     );
+    console.log(urls,bikeDoc)
 
     try {
       const shortenedUrls = await Promise.all(
@@ -180,7 +196,12 @@ const BikeDoc = ({navigation}) => {
         {filteredBikes.map(bike => (
           <View key={bike.b_id} style={styles.card}>
             <View style={styles.infoContainer}>
-              <Text style={styles.title}>Bike ID: {bike.b_id}</Text>
+              {car ? (
+                <Text style={styles.title}>Car ID: {bike.b_id}</Text>
+              ) : (
+                <Text style={styles.title}>Bike ID: {bike.carid}</Text>
+              )}
+
               <Text style={styles.text}>
                 License Plate: {bike.license_plate}
               </Text>
@@ -195,9 +216,16 @@ const BikeDoc = ({navigation}) => {
             <View style={styles.copyContainer}>
               <TouchableOpacity
                 style={styles.copyButton}
-                onPress={() => handleCopyUrls(bike.b_id)}>
+                onPress={() => {
+                  if (car) {
+                    handleCopyUrls(bike.carid);
+                  } else {
+                    handleCopyUrls(bike.b_id);
+                  }
+                }}>
                 <Text style={styles.copyText}>Copy Documents</Text>
-                {copyIconState[bike.b_id] ? (
+
+                {copyIconState[car ? bike.carid : bike.b_id] ? (
                   <Ionicons
                     name="checkmark-done-outline"
                     size={16}
@@ -238,22 +266,20 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   searchContainer: {
-   
     flexDirection: 'row',
     alignItems: 'center',
-  
+
     paddingVertical: 3,
-    borderRadius:25 , 
+    borderRadius: 25,
     backgroundColor: '#fff',
-    elevation:1 ,
-    marginTop:20 ,
-    marginLeft:20 , 
-    marginRight:20 ,  
-   
+    elevation: 1,
+    marginTop: 20,
+    marginLeft: 20,
+    marginRight: 20,
   },
   searchInput: {
     flex: 1,
-   
+
     borderRadius: 8,
     paddingHorizontal: 10,
     color: '#000',
@@ -339,7 +365,7 @@ const styles = StyleSheet.create({
     color: '#007bff',
     fontWeight: '600',
     marginRight: 5,
-    fontSize:13 ,
+    fontSize: 13,
   },
   icon2: {
     alignSelf: 'center',

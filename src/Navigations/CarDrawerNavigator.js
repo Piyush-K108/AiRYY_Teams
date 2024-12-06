@@ -186,7 +186,7 @@ const CarDrawerNavigator = () => {
         }}
       /> */}
       <Drawer.Screen
-        name="BikeDoc"
+        name="CarDoc"
         component={BikeDoc}
         options={{
           drawerLabel: 'Car Documents',
@@ -198,8 +198,9 @@ const CarDrawerNavigator = () => {
               color={focused ? '#feb101' : '#000000'}
             />
           ),
-          drawerItemStyle: {textAlign: 'left'}, // Align text to the left
+          drawerItemStyle: {textAlign: 'left'}, 
         }}
+        initialParams={{ car: true }}
       />
       <Drawer.Screen
         name="Servicing"
