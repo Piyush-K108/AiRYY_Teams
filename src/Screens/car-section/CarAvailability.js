@@ -5,115 +5,74 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Alert,
   RefreshControl,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+
 import {DOMAIN} from '@env';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+
 const CarAvailability = ({navigation}) => {
   const [assignedCar, setAssignedCar] = useState([]);
   const [FilteredassignedCar, setFilteredassignedCar] = useState([]);
   const [availableCar, setAvailableCar] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoading2, setIsLoading2] = useState(false);
-  const [clickedRentalId, setClickedRentalId] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [FuleType, setFuleType] = useState('');
-
-  const handleSearch = query => {
-    setSearchQuery(query);
-
-    if (query === '') {
-      setFilteredassignedCar(assignedCar);
-    } else {
-      const filtered = assignedCar.filter(car => {
-        const carData = car.Car;
-        const userData = car.user;
-
-        return (
-          carData.carid.toString().includes(query) ||
-          carData.license_plate.toLowerCase().includes(query.toLowerCase()) ||
-          (userData &&
-            (userData.name.toLowerCase().includes(query.toLowerCase()) ||
-              userData.phone.toString().includes(query)))
-        );
-      });
-
-      setFilteredassignedCar(filtered);
-    }
-  };
 
   useEffect(() => {
-    // Conditionally show/hide the header based on isSearchActive state
-    if (isSearchActive) {
-      navigation.setOptions({
-        headerShown: false,
-      });
-    } else {
-      navigation.setOptions({
-        headerShown: true,
-        headerLeft: () =>
-          isSearchActive ? (
-            // Back icon to close search and restore the header
-            <TouchableOpacity onPress={() => setIsSearchActive(false)}>
-              <Ionicons
-                name="arrow-back-outline"
-                size={24}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-          ) : (
-            // Default drawer toggle button
-            <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-              <Ionicons name="menu" size={24} style={styles.icon} />
-            </TouchableOpacity>
-          ),
-        headerRight: () =>
-          !isSearchActive && (
-            // Search button (visible only when search is inactive)
-            <TouchableOpacity onPress={() => setIsSearchActive(true)}>
-              <Ionicons name="search-outline" size={24} style={styles.icon} />
-            </TouchableOpacity>
-          ),
-      });
-    }
+    navigation.setOptions({
+      headerShown: !isSearchActive,
+      title: isSearchActive ? 'Search Cars' : 'Car Availability',
+
+      headerTitleStyle: {
+        color: '#000',
+        fontWeight: 'bold',
+        fontSize: 18,
+        
+      },
+      headerStyle: {
+        backgroundColor: '#fff',
+      },
+      headerLeft: () =>
+        isSearchActive ? (
+          <TouchableOpacity onPress={() => setIsSearchActive(false)}>
+            <Ionicons name="arrow-back-outline" size={24} style={styles.icon} />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+            <Ionicons
+              name="menu"
+              size={24}
+              style={[styles.icon, {marginRight: 20, color: '#facc15'}]}
+            />
+          </TouchableOpacity>
+        ),
+      headerRight: () =>
+        !isSearchActive && (
+          <TouchableOpacity onPress={() => setIsSearchActive(true)}>
+            <Ionicons name="search-outline" size={24} style={styles.icon} />
+          </TouchableOpacity>
+        ),
+    });
   }, [isSearchActive, navigation]);
-
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setIsLoading(true);
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [navigation]);
 
   const fetchData = async () => {
     try {
       const response = await fetch(`https://${DOMAIN}/Car/carInfo/`);
-
       const response2 = await fetch(`https://${DOMAIN}/Car/carInfo2/`);
-
       const data = await response.json();
       const data2 = await response2.json();
-
-      // Filter assigned Car and available Car from the data
       const assigned = data2.Carrental.filter(
         rental => rental.return_date === null,
       );
-      console.log(data);
-      console.log(data2);
       const available = data.car.filter(car => !car.is_assigned);
-
       setAssignedCar(assigned);
       setFilteredassignedCar(assigned);
       setAvailableCar(available);
-
       setIsLoading(false);
       setRefreshing(false);
     } catch (error) {
@@ -123,194 +82,332 @@ const CarAvailability = ({navigation}) => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text
-          style={{
-            color: '#000',
-            fontWeight: '600',
-            marginTop: 20,
-            fontSize: 15,
-          }}>
-          Fetching Data
-        </Text>
-      </View>
-    );
-  }
-  function convertHoursToDaysHours(totalHours) {
-    const days = Math.floor(totalHours / 24); // Calculate full days
-    const hours = totalHours % 24; // Calculate remaining hours
-  
-    // Build the result dynamically based on non-zero values
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleSearch = query => {
+    setSearchQuery(query);
+    if (!query) {
+      setFilteredassignedCar(assignedCar);
+    } else {
+      const filtered = assignedCar.filter(car => {
+        const carData = car.Car;
+        const userData = car.user;
+        return (
+          carData.carid.toString().includes(query) ||
+          carData.license_plate.toLowerCase().includes(query.toLowerCase()) ||
+          (userData &&
+            (userData.name.toLowerCase().includes(query.toLowerCase()) ||
+              userData.phone.toString().includes(query)))
+        );
+      });
+      setFilteredassignedCar(filtered);
+    }
+  };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setIsLoading(true);
+    fetchData();
+  }, []);
+
+  const formatDate = dateString => {
+    const date = new Date(dateString);
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  const convertHoursToDaysHours = totalHours => {
+    const days = Math.floor(totalHours / 24);
+    const hours = totalHours % 24;
     const parts = [];
     if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
     if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
-    
-    // Join the parts with a comma, or return "No time" if both are zero
     return parts.length > 0 ? parts.join(', ') : 'No time';
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color="#007bff" />
+        <Text style={styles.loadingText}>Fetching Data...</Text>
+      </View>
+    );
   }
 
-  const formatDate = dateString => {
-    // Convert the string to a JavaScript Date object
-    const date = new Date(dateString);
-
-    // Extract day, month, and year
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const year = date.getUTCFullYear();
-
-    return `${day}-${month}-${year}`;
-  };
   return (
     <View style={styles.container}>
-      {isSearchActive ? (
-        // Search bar at the top of the screen
+      {isSearchActive && (
         <View style={styles.searchContainer}>
           <TouchableOpacity onPress={() => setIsSearchActive(false)}>
             <Ionicons name="arrow-back-outline" size={24} style={styles.icon} />
           </TouchableOpacity>
-
           <TextInput
             style={styles.searchInput}
             placeholder="Search..."
-            placeholderTextColor="#888"
             value={searchQuery}
             onChangeText={handleSearch}
-            onSubmitEditing={() => {
-              setIsSearchActive(false); // Close the search input
-              setFilteredassignedCar(assignedCar); // Reset the filtered list to all Car
-              setSearchQuery(''); // Clear the search query
-            }}
-            returnKeyType="done"
-            autoFocus
           />
         </View>
-      ) : // Default header area with title and search icon
-      null}
-      <View style={styles.row}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: '#feb101',
-            marginTop: 20,
-
-            padding: 20,
-          }}>
-          <Text style={styles.heading1}>Available Car</Text>
-          <View>
-            <Text style={styles.info}>
-              Deisel Car: <Text style={{color: '#000'}}>0</Text>
-            </Text>
-            <Text style={styles.info}>
-              Petrol Car: <Text style={{color: '#000'}}>0</Text>
-            </Text>
-          </View>
-        </View>
-        <View
-          style={{
-            borderLeftWidth: 1,
-            borderLeftColor: 'black',
-
-            marginVertical: 15,
-
-            paddingHorizontal: 20,
-          }}
-        />
-
-        <View
-          style={{
-            flex: 1,
-
-            backgroundColor: '#feb101',
-
-            marginTop: 40,
-            marginRight: 20,
-            padding: 0,
-          }}>
-          <Text style={styles.heading2}>Assigned Car</Text>
-
-          <Text style={styles.info}>
-            Deisel Car: <Text style={{color: '#000'}}>0</Text>{' '}
-          </Text>
-          <Text style={styles.info}>
-            Petrol Car: <Text style={{color: '#000'}}>0</Text>
-          </Text>
-        </View>
-      </View>
+      )}
 
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }>
-        <View style={styles.rentalDetailsContainer}>
-          <View style={{alignItems: 'center', marginTop: 5, marginBottom: 30}}>
-            <Text style={{fontWeight: 'bold', fontSize: 18, color: '#000'}}>
-              Rental car's Details
-            </Text>
-          </View>
-          {FilteredassignedCar.map(rental => (
-            <View key={rental.id} style={styles.rentalItem}>
-              {/* <Text style={styles.rentalText}>{rental.id}</Text> */}
+        }
+        contentContainerStyle={styles.contentContainer}>
+        <View style={styles.summary}>
+          <View style={[styles.summaryCard, styles.availableCard]}>
+            <View
+              style={{
+                backgroundColor: '#f0fdf4',
+                paddingHorizontal: 8,
+                paddingVertical: 8,
+                borderRadius: 12,
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                alignItems: 'center',
+              }}>
+              <Text style={styles.summaryText}>Available Cars.</Text>
+            </View>
 
-              <Text style={styles.rentalText}>
-                Name: <Text style={{color: 'green'}}> {rental.user.name}</Text>
-              </Text>
-              <Text style={styles.rentalText}>
-                UID: <Text style={{color: 'green'}}> {rental.user.uid} </Text>
-              </Text>
-              <Text style={styles.rentalText}>
-                Email:
-                <Text style={{color: 'green'}}> {rental.user.email} </Text>
-              </Text>
-              <Text style={styles.rentalText}>
-                Number:
-                <Text style={{color: 'green'}}> {rental.user.phone} </Text>
-              </Text>
-              <Text style={styles.rentalText}>
-                Return Time:
-                <Text style={{color: 'green'}}> {convertHoursToDaysHours(rental.TimeThought)} </Text>
-              </Text>
-              <Text style={styles.rentalText}>
-                License Plate:{' '}
-                <Text style={{color: 'green'}}>{rental.Car.license_plate}</Text>
-              </Text>
-              <Text style={styles.rentalText}>
-                Date:
-                <Text style={{color: 'green'}}>
-                  {' '}
-                  {formatDate(rental.rental_date)}{' '}
+            <View
+              style={{
+                flexDirection: 'Column',
+                justifyContent: 'space-evenly',
+                marginTop: 20,
+              }}>
+              <View style={{flexDirection: 'row', marginBottom: 8}}>
+                <Text
+                  style={{
+                    color: '#000',
+                    fontSize: 15,
+                    fontWeight: '700',
+                    marginRight: 10,
+                  }}>
+                  Diesel :
                 </Text>
-              </Text>
-
-              <Text style={styles.carItem}>Car: {rental.Car.carid}</Text>
-
-              <View style={{width: '100%'}}>
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('CarDepositeDetail', {
-                      bid: rental.Car.carid,
-                    })
-                  }
-                  style={[
-                    styles.startButton,
-                    {
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      width: '100%',
-                      fontWeight: 'bold',
-                      backgroundColor: 'green',
-                    },
-                  ]}>
-                  <Text style={{...styles.buttonText}}>Deposite</Text>
-                </TouchableOpacity>
+                <Text
+                  style={{
+                    color: '#166534',
+                    fontSize: 15,
+                    fontWeight: '700',
+                    marginRight: 10,
+                  }}></Text>
               </View>
-              <Text
+              <View style={{flexDirection: 'row'}}>
+                <Text
+                  style={{
+                    color: '#000',
+                    fontSize: 15,
+                    fontWeight: '700',
+                    marginRight: 10,
+                  }}>
+                  Patrol :
+                </Text>
+                <Text
+                  style={{
+                    color: '#166534',
+                    fontSize: 15,
+                    fontWeight: '700',
+                    marginRight: 10,
+                  }}></Text>
+              </View>
+            </View>
+          </View>
+          <View style={[styles.summaryCard, styles.assignedCard]}>
+            <View
+              style={{
+                backgroundColor: '#fef2f2',
+                paddingHorizontal: 8,
+                paddingVertical: 8,
+                borderRadius: 12,
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                alignItems: 'center',
+              }}>
+              <Text style={styles.summaryText}>Assigned Cars.</Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: 'Column',
+                justifyContent: 'space-evenly',
+                marginTop: 20,
+              }}>
+              <View style={{flexDirection: 'row', marginBottom: 8}}>
+                <Text
+                  style={{
+                    color: '#000',
+                    fontSize: 15,
+                    fontWeight: '700',
+                    marginRight: 10,
+                  }}>
+                  Diesel :
+                </Text>
+                <Text
+                  style={{
+                    color: '#991b1b',
+                    fontSize: 15,
+                    fontWeight: '700',
+                    marginRight: 10,
+                  }}></Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Text
+                  style={{
+                    color: '#000',
+                    fontSize: 15,
+                    fontWeight: '700',
+                    marginRight: 10,
+                  }}>
+                  Patrol :
+                </Text>
+                <Text
+                  style={{
+                    color: '#991b1b',
+                    fontSize: 15,
+                    fontWeight: '700',
+                    marginRight: 10,
+                  }}></Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View style={{margin: 10}}>
+          <Text style={styles.sectionTitle}>Assigned Cars</Text>
+          {FilteredassignedCar.map(rental => (
+            <View key={rental.id} style={styles.card}>
+              <View
                 style={{
-                  borderBottomWidth: 1,
-                  borderBottomColor: 'black',
-                }}></Text>
+                  marginTop: 30,
+                  backgroundColor: '#fefce8',
+                  paddingHorizontal: 10,
+                  paddingVertical: 20,
+                  borderRadius: 30,
+                }}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Ionicons
+                    name="person-circle-outline"
+                    size={18}
+                    style={{color: '#000', marginRight: 5}}
+                  />
+                  <Text style={[styles.cardText, {marginTop: 5}]}>
+                    {rental.user.name}
+                  </Text>
+                </View>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Ionicons
+                    name="call-outline"
+                    size={18}
+                    style={{color: '#000', marginRight: 5}}
+                  />
+                  <Text style={[styles.cardText, {marginTop: 5}]}>
+                    {rental.user.phone}
+                  </Text>
+                </View>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Ionicons
+                    name="mail-open-outline"
+                    size={18}
+                    style={{color: '#000', marginRight: 5}}
+                  />
+                  <Text style={[styles.cardText, {marginTop: 5}]}>
+                    {rental.user.email || 'None'}
+                  </Text>
+                </View>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <FontAwesome
+                    name="drivers-license-o"
+                    size={18}
+                    style={{color: '#000', marginRight: 5}}
+                  />
+                  <Text
+                    style={[
+                      styles.cardText,
+                      {fontStyle: 'italic', textDecorationLine: 'underline'},
+                    ]}>
+                    License Plate: {rental.Car.license_plate}
+                  </Text>
+                </View>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <FontAwesome
+                    name="clock-o"
+                    size={18}
+                    style={{color: '#000', marginRight: 5}}
+                  />
+                  <Text
+                    style={[
+                      styles.cardText,
+                      {fontStyle: 'italic', textDecorationLine: 'underline'},
+                    ]}>
+                    Rental Time:{' '}
+                    {new Date(rental.rental_date).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true,
+                    })}
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  position: 'absolute',
+                  top: 12,
+                  right: 14,
+                }}>
+                <Ionicons name="alarm" size={16} style={{color: '#eab308'}} />
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: '#000',
+                    marginLeft: 8,
+                    fontWeight: '500',
+                  }}>
+                  {convertHoursToDaysHours(rental.TimeThought)}
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  position: 'absolute',
+                  top: 12,
+                  left: 14,
+                }}>
+                <Ionicons
+                  name="calendar"
+                  size={16}
+                  style={{color: '#eab308'}}
+                />
+                <Text
+                  style={{
+                    fontSize: 14,
+                    color: '#000',
+                    marginLeft: 8,
+                    fontWeight: '500',
+                  }}>
+                  {formatDate(rental.rental_date)}
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() =>
+                  navigation.navigate('CarDepositeDetail', {
+                    bid: rental.Car.carid,
+                  })
+                }>
+                <Text style={styles.buttonText}>Go to Deposite</Text>
+              </TouchableOpacity>
             </View>
           ))}
         </View>
@@ -322,160 +419,105 @@ const CarAvailability = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
-    backgroundColor: '#feb101',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-
-    paddingVertical: 3,
-    borderRadius: 25,
-    backgroundColor: '#fff',
-    elevation: 1,
-    marginTop: 20,
-    marginLeft: 20,
-    marginRight: 20,
-  },
-  searchInput: {
-    flex: 1,
-
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    color: '#000',
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignContent: 'center',
-  },
-  // column: {
-  //   flex: 1,
-  //   backgroundColor: '#feb101',
-  //   borderBottomLeftRadius: 20,
-  //   borderBottomLeftRadius: 20,
-  //   padding: 16,
-  // },
-  heading1: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 16,
-    fontWeight: 'bold',
-
-    color: 'green',
-    backgroundColor: '#fff',
-    marginTop: -10,
-    marginBottom: 20,
-    padding: 8,
-    borderRadius: 9,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 6,
-  },
-  heading2: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 16,
-    fontWeight: 'bold',
-
-    marginTop: -10,
-    marginBottom: 20,
-    color: 'red',
-    backgroundColor: '#fff',
-    borderRadius: 9,
-    padding: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 6,
-  },
-  carItem: {
-    backgroundColor: '#feb101',
-    padding: 8,
-    color: '#000',
-    width: '40%',
-    fontWeight: 'bold',
-
-    borderRadius: 4,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  info: {
-    marginBottom: 5,
-    color: '#000',
-    fontWeight: 'bold',
-  },
-  rentalDetailsContainer: {
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    marginTop: 16,
-    backgroundColor: '#FFF', // Light yellow color
-    // backgroundColor: '#feb101', // Light yellow color
-    // Light yellow color
-    padding: 20,
-  },
-  rentalItem: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    marginBottom: 35,
-  },
-  rentalText: {
-    fontSize: 18,
-    color: '#000',
-    marginBottom: 10,
-    fontWeight: 'bold',
+    backgroundColor: '#fafafa',
+    marginLeft: 8,
+    marginRigth: 8,
   },
   loading: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loading2: {
-    flex: 1,
-    paddingHorizontal: 33,
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#555',
   },
-  buttonContainer: {
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 8,
+    margin: 25,
+    borderRadius: 30,
+    elevation: 1,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#333',
+  },
+  contentContainer: {
+    paddingHorizontal: 16,
+  },
+  summary: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 20,
+    marginTop: 40,
+  },
+  summaryCard: {
+    flex: 1,
+    // alignItems: 'center',
+    // justifyContent: 'center',
+    borderRadius: 10,
+    padding: 20,
+    marginHorizontal: 5,
+  },
+  availableCard: {
+    backgroundColor: '#d4edda',
+  },
+  assignedCard: {
+    backgroundColor: '#f8d7da',
+  },
+  summaryText: {
+    fontSize: 12,
+    color: '#000',
+    fontWeight: 'bold',
+    marginBottom: 0,
+    letterSpacing: 1,
+  },
+  count: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginVertical: 10,
+    color: '#000',
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 10,
+    // elevation: 1,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+  },
+  cardText: {
+    fontSize: 14,
+    marginBottom: 5,
+    color: '#000',
+    fontWeight: '600',
+  },
+  button: {
     marginTop: 10,
-  },
-  startButton: {
-    backgroundColor: 'green',
+    backgroundColor: '#000',
     paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  stopButton: {
-    backgroundColor: 'red',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    borderRadius: 15,
+    alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
+    color: '#facc15',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   icon: {
-    color: '#000',
-    marginHorizontal: 15,
+    marginRight: 20,
+    color: '#eab308',
   },
 });
 

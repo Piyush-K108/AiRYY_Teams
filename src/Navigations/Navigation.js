@@ -6,6 +6,7 @@ import Login from '../Screens/Login';
 import CustomerDetails from '../Screens/CustomerDetails';
 import VehicleDetails from '../Screens/VahicleDetails';
 import DepositeDetail from '../Screens/DepositeDetail';
+import CarPersonalUse from '../Screens/car-section/CarPersonalUse';
 import DrawerNavigator from './DrawerNavigator';
 import AgreementPage from '../Screens/AgreementPage';
 import Signature from '../Screens/Signature';
@@ -41,9 +42,10 @@ const Navigation = () => {
             <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
             <Stack.Screen name="CarBill" component={CarBill} />
             <Stack.Screen name="CarDrawerNavigator" component={CarDrawerNavigator} />
-            <Stack.Screen name="CarAvailability" component={CarAvailability} />
+            <Stack.Screen name="CarAvailability" component={CarAvailability}/>
             <Stack.Screen name="CarDetail" component={CarDetail} />
             <Stack.Screen name="DepositeDetail" component={DepositeDetail} />
+            <Stack.Screen name="CarPersonalUse" component={CarPersonalUse} />
             <Stack.Screen name="BikeDoc" component={BikeDoc} />
             <Stack.Screen name="PersnalUSe" component={PersnalUSe} />
             <Stack.Screen name="BillData" component={BillData} />

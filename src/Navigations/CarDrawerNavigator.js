@@ -23,7 +23,6 @@ import {useDispatch} from 'react-redux';
 import {logout} from '../Redux/Counter/counterAction';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-
 import AttachedBikes from '../Screens/AttachedBikes';
 import PersnalUSe from '../Screens/PersnalUse';
 import BillData from '../Screens/BillData';
@@ -33,9 +32,8 @@ import Servicing from '../Screens/Servicing';
 import UserBill from '../Screens/UserBill';
 import CarHome from '../Screens/car-section/CarHome';
 
-
 import BikeDoc from '../Screens/BikeDoc';
-
+import CarPersonalUse from '../Screens/car-section/CarPersonalUse';
 
 const DrawerContent = props => {
   const dispatch = useDispatch();
@@ -141,6 +139,7 @@ const CarDrawerNavigator = () => {
         options={{
           drawerLabel: 'Car Availability',
           title: 'Car Availability',
+        
           drawerIcon: ({focused}) => (
             <MuiIcon
               name={focused ? 'car' : 'car'} // Use your preferred icon names
@@ -198,9 +197,9 @@ const CarDrawerNavigator = () => {
               color={focused ? '#feb101' : '#000000'}
             />
           ),
-          drawerItemStyle: {textAlign: 'left'}, 
+          drawerItemStyle: {textAlign: 'left'},
         }}
-        initialParams={{ car: true }}
+        initialParams={{car: true}}
       />
       <Drawer.Screen
         name="Servicing"
@@ -253,8 +252,9 @@ const CarDrawerNavigator = () => {
 
       <Drawer.Screen
         name="Persnal Use"
-        component={PersnalUSe}
+        component={CarPersonalUse}
         options={{
+          headerShown: false,
           drawerLabel: 'Persnal Use',
           title: 'Persnal Use',
           drawerIcon: ({focused}) => (

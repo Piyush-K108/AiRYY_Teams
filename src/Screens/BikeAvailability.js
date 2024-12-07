@@ -251,12 +251,12 @@ const BikeAvailability = ({navigation}) => {
   function convertHoursToDaysHours(totalHours) {
     const days = Math.floor(totalHours / 24); // Calculate full days
     const hours = totalHours % 24; // Calculate remaining hours
-  
+
     // Build the result dynamically based on non-zero values
     const parts = [];
     if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
     if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
-    
+
     // Join the parts with a comma, or return "No time" if both are zero
     return parts.length > 0 ? parts.join(', ') : 'No time';
   }
@@ -362,20 +362,30 @@ const BikeAvailability = ({navigation}) => {
               <Text style={styles.rentalText}>
                 Name: <Text style={{color: 'green'}}> {rental.user.name}</Text>
               </Text>
-              <Text style={styles.rentalText}>
+              {/* <Text style={styles.rentalText}>
                 UID: <Text style={{color: 'green'}}> {rental.user.uid} </Text>
-              </Text>
-              <Text style={styles.rentalText}>
-                Email:
-                <Text style={{color: 'green'}}> {rental.user.email} </Text>
-              </Text>
+              </Text> */}
               <Text style={styles.rentalText}>
                 Number:
                 <Text style={{color: 'green'}}> {rental.user.phone} </Text>
               </Text>
               <Text style={styles.rentalText}>
+                Rental Time:
+                <Text style={{color: 'green'}}>
+                  {new Date(rental.rental_date).toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
+                </Text>
+              </Text>
+
+              <Text style={styles.rentalText}>
                 Return Time:
-                <Text style={{color: 'green'}}> {convertHoursToDaysHours(rental.TimeThought)} </Text>
+                <Text style={{color: 'green'}}>
+                  {' '}
+                  {convertHoursToDaysHours(rental.TimeThought)}{' '}
+                </Text>
               </Text>
               <Text style={styles.rentalText}>
                 License Plate:{' '}
